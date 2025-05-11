@@ -160,43 +160,23 @@
             <a href="#" class="forgot text-decoration-none">Forgot password?</a>
           </div>
           <button type="submit" class="btn btn-custom w-100 mb-3">Sign In</button>
-           <div id="response"></div>
+          <div id="response"></div>
           <div class="text-center text-muted mb-3">OR</div>
           <button type="button" class="btn btn-outline-primary w-100 mb-2 social-btn">
-            <i class="bi bi-facebook"></i> Sign in with Facebook
-          </button>
-          <button type="button" class="btn btn-outline-danger w-100 social-btn">
-            <i class="bi bi-google"></i> Sign in with Google
-          </button>
+              <i class="bi bi-facebook"></i> Sign in with Facebook
+            </button>
+            <button type="button" class="btn btn-outline-danger w-100 social-btn">
+                <i class="bi bi-google"></i> Sign in with Google
+            </button>
         </form>
-      </div>
+    </div>
+    
+    <!-- Sign Up -->
+    <div class="tab-pane fade" id="signup" role="tabpanel">
+        <div class="container mt-4" style="max-height: 450px; overflow-y: auto; border: 1px solid #ccc; padding: 20px; border-radius: 8px;" hx-get="{% url 'main_register' %}" hx-trigger="load" hx-target="this">
+</div>
 
-      <!-- Sign Up -->
-      <div class="tab-pane fade" id="signup" role="tabpanel">
-        <form>
-          <div class="mb-3">
-            <input type="text" class="form-control" placeholder="Full Name">
-          </div>
-          <div class="mb-3">
-            <input type="email" class="form-control" placeholder="Email address">
-          </div>
-          <div class="mb-3 position-relative">
-            <input type="password" class="form-control" placeholder="Password" id="signup-password">
-            <span class="password-toggle" onclick="togglePassword('signup-password', this)">👁️</span>
-          </div>
-          <div class="mb-3 position-relative">
-            <input type="password" class="form-control" placeholder="Confirm Password" id="signup-confirm-password">
-            <span class="password-toggle" onclick="togglePassword('signup-confirm-password', this)">👁️</span>
-          </div>
-          <button type="submit" class="btn btn-custom w-100 mb-3">Sign Up</button>
-          <div class="text-center text-muted mb-3">OR</div>
-          <button type="button" class="btn btn-outline-primary w-100 mb-2 social-btn">
-            <i class="bi bi-facebook"></i> Sign up with Facebook
-          </button>
-          <button type="button" class="btn btn-outline-danger w-100 social-btn">
-            <i class="bi bi-google"></i> Sign up with Google
-          </button>
-        </form>
+
       </div>
     </div>
   </div>
@@ -215,5 +195,15 @@
     }
   }
 </script>
+<script>
+document.querySelectorAll('input[name="role"]').forEach(radio => {
+  radio.addEventListener('change', function() {
+    const role = this.value;
+    document.getElementById('doctor-fields').style.display = (role == '2') ? 'block' : 'none';
+    document.getElementById('patient-fields').style.display = (role == '3') ? 'block' : 'none';
+  });
+});
+</script>
+
 </body>
 </html>

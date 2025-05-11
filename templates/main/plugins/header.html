@@ -1,4 +1,16 @@
 {% load static %}
+{% block extra_css %}
+<style>
+    {% comment %} write media query {% endcomment %}
+     @media screen and (max-width: 768px) {
+    #loginBtn{
+        margin: 10px;
+        padding: 5px;
+        border-radius: 5px;
+    }
+}
+</style>
+{% endblock  %}
 <!--::header part start::-->
     <header class="main_menu home_menu">
         <div class="container">
@@ -54,8 +66,11 @@
                                     <a class="nav-link" href="{% url 'contact_us' %}">Contact</a>
                                 </li>
                             </ul>
+                            <!-- Right-aligned login button -->
+                            <div class="d-flex">
+                                <a id="loginBtn" class="btn btn-primary" href="{% url 'main_login' %}">Login/Register</a>
+                            </div>
                         </div>
-                        <a class="btn_2 d-none d-lg-block" href="{% url 'main_login' %}">Login/Register</a>
                     </nav>
                 </div>
             </div>

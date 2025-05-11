@@ -27,8 +27,6 @@ ROLE_CHOICES = [
     (1, "Patient"),
     (2, "Doctor"),
     (3, "Nurse"),
-    (4, "Staff"),
-    (5, "Admin"),
 ]
 
 gender_choice=[(1, 'Male'), (2, 'Female'), (3, 'Other')]
@@ -227,3 +225,4 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     def is_staff(self):
         return self.role == 4
+

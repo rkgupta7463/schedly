@@ -37,50 +37,52 @@ class SetNewPasswordForm(SetPasswordForm):
         if password and confirm_password and password != confirm_password:
             raise forms.ValidationError("Passwords doesn't match. Both passwords must be same.")
         return self.cleaned_data
+    
 
 class CustomUserRegistrationForm(CustomModelForm):
     class Meta:
         model = CustomUser
-        fields = ['full_name','email', 'phone', "gender","date_of_birth","address","city","state","country","pincode",'role']#   , 'password1', 'password2'] #'height', 'weight',
+        fields = [
+            # Always visible
+            'full_name', 'email', 'phone', 'gender', 'date_of_birth',
+            'address', 'city', 'state', 'country', 'pincode',
+            'role', 'profile_picture',
+
+            # Doctor-specific
+            'specialization', 'qualification_level', 'experience_years',
+            'registration_number', 'consultation_fee', 'available_from',
+            'available_to', 'available_days', 'clinic_location',
+
+            # Patient-specific
+            'blood_group', 'emergency_contact', 'insurance_provider',
+            'insurance_number',
+
+        ]
+
         widgets = {
-            # 'amenities':PreOptionModelSelect2MultipleWidget(
-            #         search_fields=['name__icontains'],
-            #         attrs={'data-placeholder': 'Select Amenities'}
-            # ),
-                'gender': s2forms.Select2Widget(
-                        attrs={'data-placeholder': 'Select Gender'}
-                ),   
-            }
-        
+            'gender': s2forms.Select2Widget(attrs={'data-placeholder': 'Select Gender'}),
+            'role': s2forms.Select2Widget(attrs={'data-placeholder': 'Select Role'}),
+            'specialization': s2forms.Select2Widget(attrs={'data-placeholder': 'Select Specialization'}),
+            'qualification_level': s2forms.Select2Widget(attrs={'data-placeholder': 'Select Qualification'}),
+            'available_days': s2forms.Select2MultipleWidget(attrs={'data-placeholder': 'Select Available Days'}),
+            'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
+            'available_from': forms.TimeInput(attrs={'type': 'time'}),
+            'available_to': forms.TimeInput(attrs={'type': 'time'}),
+        }
+
     def __init__(self, *args, **kwargs):
-        super(CustomUserRegistrationForm, self).__init__(*args, **kwargs)
-        # Apply Bootstrap classes and placeholders to each form field
-        self.fields['full_name'].widget.attrs.update({
-            'class': 'form-control', 
-            'placeholder': 'Full Name'
-        })
-        self.fields['email'].widget.attrs.update({
-            'class': 'form-control', 
-            'placeholder': 'Email'
-        })
-        self.fields['phone'].widget.attrs.update({
-            'class': 'form-control', 
-            'placeholder': 'Phone (Optional)'
-        })
-        self.fields['date_of_birth'].widget.attrs.update({
-            'class': 'form-control', 
-            'placeholder': 'DOB (Optional)',
-            "type":"date"
-        })
+        super(CustomUserRegistrationForm,self).__init__(*args, **kwargs)
+        self.fields['address'].widget.attrs.update({'rows': 3})
+        # self.fields['medical_history'].widget.attrs.update({'rows': 3})
+        # Add Bootstrap styling
+        for field_name, field in self.fields.items():
+            if not isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({
+                    'class': 'form-control',
+                    'placeholder': field.label
+                })
+
         self.custom_field_class()
-
-
-    def clean_phone(self):
-        phone = self.cleaned_data.get('phone')
-        if phone and (not phone.isdigit() or len(phone) != 10):
-            raise ValidationError("Phone number must be exactly 10 digits.")
-        return phone
-
 
 class EmailLoginForm(forms.Form):
     email = forms.EmailField(

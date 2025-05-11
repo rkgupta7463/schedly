@@ -4,6 +4,8 @@ from django.contrib.auth import authenticate
 import socket
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login,logout
+from core.forms import CustomUserRegistrationForm
+from django.shortcuts import redirect
 
 # Create your views here.
 def index(request):
@@ -47,5 +49,23 @@ def login_view(request):
 
     return render(request, 'main/login.html')
 
-def register(request):
-    return render(request, 'main/register.html')
+
+def register_view(request):
+    form = CustomUserRegistrationForm(request.POST or None, request.FILES or None)
+    if request.method == "POST":
+        if form.is_valid():
+            form.save()
+            return HttpResponse("""<div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
+                                <strong>Success!</strong> A link to set your password has been sent to your email. Please check your inbox (or spam folder) and follow the instructions to set your new password.
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                            """)
+        else:
+            return HttpResponse(f"""<div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+                    <strong>Warning!</strong> {form.errors}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>""")
+    else:
+        form = CustomUserRegistrationForm()
+    return render(request, "main/partials/form.html", {"form": form})
+
