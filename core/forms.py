@@ -60,10 +60,15 @@ class CustomUserRegistrationForm(CustomModelForm):
         ]
 
         widgets = {
-            'gender': s2forms.Select2Widget(attrs={'data-placeholder': 'Select Gender'}),
+            'specialization':PreOptionModelSelect2MultipleWidget(
+                search_fields=['name__icontains'],
+                attrs={'data-placeholder':'Select Specialization(s)'}
+            ),
+            'qualification_level':PreOptionModelSelect2MultipleWidget(
+                search_fields=['name__icontains'],
+                attrs={'data-placeholder':'Select Qualification Level(s)'}
+            ),
             'role': s2forms.Select2Widget(attrs={'data-placeholder': 'Select Role'}),
-            'specialization': s2forms.Select2Widget(attrs={'data-placeholder': 'Select Specialization'}),
-            'qualification_level': s2forms.Select2Widget(attrs={'data-placeholder': 'Select Qualification'}),
             'available_days': s2forms.Select2MultipleWidget(attrs={'data-placeholder': 'Select Available Days'}),
             'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
             'available_from': forms.TimeInput(attrs={'type': 'time'}),
@@ -81,6 +86,9 @@ class CustomUserRegistrationForm(CustomModelForm):
                     'class': 'form-control',
                     'placeholder': field.label
                 })
+        self.fields['registration_number'].widget.attrs.update({
+            "placeholder":"License Number or Registration Number"
+        })
 
         self.custom_field_class()
 

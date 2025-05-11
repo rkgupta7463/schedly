@@ -64,7 +64,7 @@
   <button type="submit" form="form-hx" class="btn btn-primary waves-effect waves-float waves-light">Accept</button>
 </div>
 
-<script src="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.js"></script>
+{% comment %} <script src="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.js"></script> {% endcomment %}
 {{form.media.js}}
 
 {% if config.isConfirm %}
@@ -108,7 +108,7 @@
     });
   }); 
 </script>
-
+{% comment %} 
 <script>
 
 document.querySelectorAll('.coloris').forEach(input => {
@@ -154,7 +154,7 @@ document.querySelectorAll('.coloris').forEach(input => {
     });
   });
 });
-</script>
+</script> {% endcomment %}
 
 {% if config.selectMultiple %}
 <script>

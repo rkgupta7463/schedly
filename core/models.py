@@ -155,20 +155,22 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     # Optional fields used based on role
     # Doctor-specific
-    specialization = models.PositiveSmallIntegerField(
-        choices=SPECIALIZATION_CHOICES,
+    specialization = models.ForeignKey(
+        'Specialization',
+        on_delete=models.CASCADE,
         blank=True,
         null=True,
         help_text="Choose your specialization by selecting"
     )
-    qualification_level = models.PositiveIntegerField(
-        choices=QUALIFICATION_CHOICES,
+    qualification_level = models.ForeignKey(
+        'Qualification',
+        on_delete=models.CASCADE,
         blank=True,
         null=True,
         help_text="Choose your qualification by selecting"
     )
     experience_years = models.PositiveIntegerField(blank=True, null=True)
-    registration_number = models.CharField(max_length=50, blank=True, null=True)
+    registration_number = models.CharField(max_length=50, blank=True, null=True,help_text="Official license number or registration number")
     consultation_fee = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     available_from = models.TimeField(blank=True, null=True)
     available_to = models.TimeField(blank=True, null=True)
@@ -226,3 +228,43 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def is_staff(self):
         return self.role == 4
 
+
+
+
+class Specialization(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
+
+    is_active = models.BooleanField(default=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='specialization_created'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+    
+
+class Qualification(models.Model):
+    title = models.CharField(max_length=100, unique=True)  # e.g. MBBS, MD, BDS
+    issuing_authority = models.CharField(max_length=150, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+
+    is_active = models.BooleanField(default=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='qualification_created'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.title

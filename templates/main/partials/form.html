@@ -13,12 +13,6 @@
   {{ form.email.label_tag }} {{ form.email }}
   {{ form.phone.label_tag }} {{ form.phone }}
   {{ form.gender.label_tag }} {{ form.gender }}
-  {{ form.date_of_birth.label_tag }} {{ form.date_of_birth }}
-  {{ form.address.label_tag }} {{ form.address }}
-  {{ form.city.label_tag }} {{ form.city }}
-  {{ form.state.label_tag }} {{ form.state }}
-  {{ form.country.label_tag }} {{ form.country }}
-  {{ form.pincode.label_tag }} {{ form.pincode }}
   {% comment %} {{ form.profile_picture.label_tag }} {{ form.profile_picture }} {% endcomment %}
 
   <!-- 🔁 Role-based fields -->
@@ -27,6 +21,9 @@
     {{ form.qualification_level.label_tag }} {{ form.qualification_level }}
     {{ form.experience_years.label_tag }} {{ form.experience_years }}
     {{ form.registration_number.label_tag }} {{ form.registration_number }}
+     {% comment %} {% if form.registration_number.help_text %}
+    <small class="form-text text-muted">{{ form.registration_number.help_text }}</small>
+  {% endif %} {% endcomment %}
     {{ form.consultation_fee.label_tag }} {{ form.consultation_fee }}
     {{ form.available_from.label_tag }} {{ form.available_from }}
     {{ form.available_to.label_tag }} {{ form.available_to }}
@@ -35,6 +32,12 @@
   </div>
 
   <div id="patient-fields" class="role-group d-none">
+      {{ form.date_of_birth.label_tag }} {{ form.date_of_birth }}
+      {{ form.address.label_tag }} {{ form.address }}
+    {{ form.city.label_tag }} {{ form.city }}
+    {{ form.state.label_tag }} {{ form.state }}
+    {{ form.country.label_tag }} {{ form.country }}
+    {{ form.pincode.label_tag }} {{ form.pincode }}
     {{ form.blood_group.label_tag }} {{ form.blood_group }}
     {{ form.emergency_contact.label_tag }} {{ form.emergency_contact }}
     {{ form.insurance_provider.label_tag }} {{ form.insurance_provider }}

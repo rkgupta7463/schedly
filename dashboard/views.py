@@ -49,7 +49,7 @@ def custom_login_view(request):
             return HttpResponse(
                 status=204,
                 headers={
-                    'HX-Redirect': "/"
+                    'HX-Redirect': "/schedly/admin/"
                 }
             )
         else:
@@ -206,7 +206,7 @@ def createUser(request, uid=None):
                     })
                 }
             )
-    return render(request, 'dashboard/partials/add_form.html', context={'form': form, "title": "Edit User" if instance else "Create User"})
+    return render(request, 'dashboard/partials/add_form.html', context={'form': form, "title": "Edit User" if instance else "Create User",'config':{'select2':True}})
 
 
 def edit_user(request, uid=None):
@@ -232,7 +232,7 @@ def edit_user(request, uid=None):
             )
     else:
         form = CustomUserRegistrationForm(instance=instance)
-    return render(request, "dashboard/partials/modal_add_form.html", {"form": form, "title": "Edit User" if instance else "Add User"})
+    return render(request, "dashboard/partials/modal_add_form.html", {"form": form, "title": "Edit User" if instance else "Add User",'config':{'select2':True}})
 
 
 def rest_password_view(request, uid=None):
@@ -350,6 +350,258 @@ def set_password_user(request, uid):
     return render(request, 'dashboard/partials/modal_add_form.html', {"form": form, "title": "Set Password", })
 
 
+## specialization view function
+@login_required(login_url="login_admin")
+def specialization(request):  
+    query_string = request.GET.urlencode()
+    context = {
+        "title": "Specialization",
+        # "description": "List of Users",
+        "url": f"{reverse('specializations_filtered')}{'?' + query_string if  query_string else ''}",
+        "bread_crumbs":  [
+                        {"name": "Home", "url": reverse("index")}, {"name": "Specialization"}, 
+                    ]
+        }
+    return render(request, 'dashboard/filter-datatable-init.html', context)
+
+
+def specializations_filtered(request):
+    query_string = request.GET.urlencode()
+    
+    filled_fields = 0
+    for key, value in request.GET.items():
+        if value:
+            filled_fields += 1
+            
+    context = {
+        "title": "Specialization",
+        "description": "List of Specialization",
+        # "filterForm": {"title": "Filter Users", "form": filter.form, "select2": True},
+        
+        "url": f"{reverse('ajax_datatable_specializations_filter_list',)}?{query_string}",
+        "params": query_string,
+        "filled_fields": filled_fields,
+        "hx_add_button": [
+                {"url": reverse('add_specialization'),"icon": "","text": "Add Specialization", "bs_toggle": "modal"},
+                ],
+        # "export_button": {"url": reverse('users_export'), "icon": '<i class="ti ti-table-export"></i>'},
+        # "export_history": {"url": reverse('users_export_history'), "icon": '<i class="ti ti-clock"></i>'},
+    }
+    response = render(request, 'dashboard/partials/filter-datatable.html', context=context)
+    if query_string:
+        response['HX-Trigger'] = json.dumps({"closeModal": True})
+    return response
+
+
+class SpecializationsDatatableView(AjaxDatatableView):
+    model = Specialization
+    title = "Specializations"
+    initial_order = [["name", "dsc"], ]
+    length_menu = [[10, 20, 30, 50], [10, 20, 30, 50]]
+    search_values_separator = '+'
+    column_defs = [
+            {'name': 'SN', 'visible': True, 'placeholder': True, 'orderable': False, 'searchable': False, 'className': "sn-no" },
+            {'name': 'name', 'title': 'Name', 'visible': True, 'orderable': True, 'searchable': True},
+            {'name': 'created_by', 'title': 'Created By', 'visible': True, 'orderable': True, 'searchable': True},
+            # {'name': 'is_active', 'title': 'Status', 'visible': True, 'orderable': True, 'searchable': True},
+            {'name': 'action', "title": "Action",  'visible': True,  'orderable': False,  'searchable': False, 'width': '2rem'},
+    ]
+
+
+    def customize_row(self, row, obj):
+        # if obj.is_active:
+        #     row["is_active"] = f"""<span class="badge bg-label-success" text-capitalized="">Active</span>"""
+        # else:
+        #     row["is_active"] = f"""<span class="badge bg-label-danger" text-capitalized="">Inactive</span>"""
+        # """<button type="button" class="btn btn-secondary" data-toggle="tooltip" data-html="true" title="" data-original-title="<em>Tooltip</em> <u>with</u> <b>HTML</b>">Tooltip with HTML</button>"""
+        
+        # row["image_url"] = f"""<img src={obj.image_url.url} alt="{obj.image_url}" style="width:200px; height:100px">"""
+        row["created_by"] = obj.created_by.email
+            # Show the first price (or "N/A" if no prices exist)
+        row['action'] = '''
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary btn-icon rounded-pill dropdown-toggle hide-arrow waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="ti ti-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" style="">
+                                <a class="dropdown-item waves-effect" hx-get="%s" hx-target="#modal-content" data-bs-toggle="modal" data-bs-target="#modal">%s</a>
+                            
+                               </ul>
+                        </div>
+                        ''' %(
+                            reverse('edit_specialization', args=(obj.id,)), "Edit",
+                            )
+
+    def get_show_column_filters(self, request):
+        return False
+
+    def get_column_defs(self, request):
+        if request.user.is_superuser:
+            return self.column_defs
+        else:
+            column_defs = [entry for entry in self.column_defs if entry['name'] not in "created_by"]
+            return column_defs 
+    
+    def get_initial_queryset(self, request=None):
+        if request.user.is_superuser:
+            queryset = Specialization.objects.all()
+        else:
+            queryset = Specialization.objects.filter(created_by=request.user)
+
+        return queryset
+
+
+
+def add_specialization_edit(request, sid=None):
+    instance = Specialization.objects.get(id=sid) if sid else None
+    form = SpecializationForm(instance=instance, data=request.POST or None)
+    if request.method == "POST":
+        if form.is_valid():
+            f = form.save(commit=False)
+            f.created_by=request.user
+            f.save()
+            form.save_m2m()  # Explicitly save many-to-many relat
+
+            toast = {"level": "success", "message": f"Specialization: { f.name } created!"}
+
+            return HttpResponse(
+                status=204,
+                headers={
+                    'HX-Trigger': json.dumps({
+                        "tableChanged": True,
+                        "closeModal": True,
+                        "showToast": toast
+                    })
+                }
+            )
+    return render(request, 'dashboard/partials/add_form.html', context={'form': form, "title": "Specialization has Edited!" if instance else "Specialization has Created!"})
+
+
+## specialization view function
+@login_required(login_url="login_admin")
+def qualification(request):  
+    query_string = request.GET.urlencode()
+    context = {
+        "title": "Qualification",
+        # "description": "List of Users",
+        "url": f"{reverse('qualifications_filtered')}{'?' + query_string if  query_string else ''}",
+        "bread_crumbs":  [
+                        {"name": "Home", "url": reverse("index")}, {"name": "Qualification"}, 
+                    ]
+        }
+    return render(request, 'dashboard/filter-datatable-init.html', context)
+
+
+def qualifications_filtered(request):
+    query_string = request.GET.urlencode()
+    
+    filled_fields = 0
+    for key, value in request.GET.items():
+        if value:
+            filled_fields += 1
+            
+    context = {
+        "title": "Qualification",
+        "description": "List of Qualification",
+        # "filterForm": {"title": "Filter Users", "form": filter.form, "select2": True},
+        
+        "url": f"{reverse('ajax_datatable_qualifications_filter_list',)}?{query_string}",
+        "params": query_string,
+        "filled_fields": filled_fields,
+        "hx_add_button": [
+                {"url": reverse('add_qualification'),"icon": "","text": "Add Qualification", "bs_toggle": "modal"},
+                ],
+        # "export_button": {"url": reverse('users_export'), "icon": '<i class="ti ti-table-export"></i>'},
+        # "export_history": {"url": reverse('users_export_history'), "icon": '<i class="ti ti-clock"></i>'},
+    }
+    response = render(request, 'dashboard/partials/filter-datatable.html', context=context)
+    if query_string:
+        response['HX-Trigger'] = json.dumps({"closeModal": True})
+    return response
+
+
+class QualificationsDatatableView(AjaxDatatableView):
+    model = Qualification
+    title = "Qualification"
+    initial_order = [["title", "dsc"], ]
+    length_menu = [[10, 20, 30, 50], [10, 20, 30, 50]]
+    search_values_separator = '+'
+    column_defs = [
+            {'name': 'SN', 'visible': True, 'placeholder': True, 'orderable': False, 'searchable': False, 'className': "sn-no" },
+            {'name': 'title', 'title': 'Title', 'visible': True, 'orderable': True, 'searchable': True},
+            {'name': 'issuing_authority', 'title': 'Issuing Authority', 'visible': True, 'orderable': True, 'searchable': True},
+            {'name': 'created_by', 'title': 'Created By', 'visible': True, 'orderable': True, 'searchable': True},
+            # {'name': 'is_active', 'title': 'Status', 'visible': True, 'orderable': True, 'searchable': True},
+            {'name': 'action', "title": "Action",  'visible': True,  'orderable': False,  'searchable': False, 'width': '2rem'},
+    ]
+
+
+    def customize_row(self, row, obj):
+        # if obj.is_active:
+        #     row["is_active"] = f"""<span class="badge bg-label-success" text-capitalized="">Active</span>"""
+        # else:
+        #     row["is_active"] = f"""<span class="badge bg-label-danger" text-capitalized="">Inactive</span>"""
+        # """<button type="button" class="btn btn-secondary" data-toggle="tooltip" data-html="true" title="" data-original-title="<em>Tooltip</em> <u>with</u> <b>HTML</b>">Tooltip with HTML</button>"""
+        
+        # row["image_url"] = f"""<img src={obj.image_url.url} alt="{obj.image_url}" style="width:200px; height:100px">"""
+        row["created_by"] = obj.created_by.email
+            # Show the first price (or "N/A" if no prices exist)
+        row['action'] = '''
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary btn-icon rounded-pill dropdown-toggle hide-arrow waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="ti ti-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" style="">
+                                <a class="dropdown-item waves-effect" hx-get="%s" hx-target="#modal-content" data-bs-toggle="modal" data-bs-target="#modal">%s</a>
+                            
+                               </ul>
+                        </div>
+                        ''' %(
+                            reverse('edit_qualification', args=(obj.id,)), "Edit",
+                            )
+
+    def get_show_column_filters(self, request):
+        return False
+
+    def get_column_defs(self, request):
+        if request.user.is_superuser:
+            return self.column_defs
+        else:
+            column_defs = [entry for entry in self.column_defs if entry['name'] not in "created_by"]
+            return column_defs 
+    
+    def get_initial_queryset(self, request=None):
+        if request.user.is_superuser:
+            queryset = Qualification.objects.all()
+        else:
+            queryset = Qualification.objects.filter(created_by=request.user)
+
+        return queryset
+
+
+
+def add_qualification_edit(request, qid=None):
+    instance = Qualification.objects.get(id=qid) if qid else None
+    form = QualificationForm(instance=instance, data=request.POST or None)
+    if request.method == "POST":
+        if form.is_valid():
+            f = form.save(commit=False)
+            f.created_by=request.user
+            f.save()
+
+            toast = {"level": "success", "message": f"Qualification: { f.title } created!"}
+
+            return HttpResponse(
+                status=204,
+                headers={
+                    'HX-Trigger': json.dumps({
+                        "tableChanged": True,
+                        "closeModal": True,
+                        "showToast": toast
+                    })
+                }
+            )
+    return render(request, 'dashboard/partials/add_form.html', context={'form': form, "title": "Qualification has Edited!" if instance else "Qualification has Created!"})
 
 
 ## hospital view function
@@ -436,6 +688,7 @@ class HospitalsDatatableView(AjaxDatatableView):
                             <ul class="dropdown-menu dropdown-menu-end" style="">
                                 <a class="dropdown-item waves-effect" hx-get="%s" hx-target="#modal-content" data-bs-toggle="modal" data-bs-target="#modal">%s</a>
                                 <a class="dropdown-item waves-effect" hx-get="%s" hx-target="#modal-content" data-bs-toggle="modal" data-bs-target="#modal">%s</a>
+                                <a class="dropdown-item waves-effect" href="%s">%s</a>
                             
                                </ul>
                         </div>
@@ -444,6 +697,7 @@ class HospitalsDatatableView(AjaxDatatableView):
                             # reverse('facility', args=(obj.id,)), "Facility",
                             # reverse('rules_view', args=(obj.id,)), "Rule",
                             reverse('add_hospital_img', args=(obj.id,)), "Add Picture",
+                            reverse('hospital_detail', args=(obj.id,)), "View",
                             # reverse('add_ground_price', args=(obj.id,)), "Set Price",
                             )
 
@@ -524,6 +778,13 @@ def additional_hospital_img(request,hid, pid=None):
     return render(request, 'dashboard/partials/add_form.html', context={'form': form, "title": f"Edited Hospital Image!" if instance else "Add Hospital Image!"})
 
 
-
+def hospital_detail(request,hid):
+    hospital = Hospital.objects.get(id=hid)
+    hospital_images = HospitalImage.objects.filter(hospital=hospital)
+    context={
+        'hospital': hospital,
+        "hospital_images":hospital_images
+        }
+    return render(request, 'dashboard/hospital_detail.html', context)
 
 

@@ -28,10 +28,10 @@ class CustomForm(forms.Form):
             else:
                 input_type = field.widget.input_type
                 if not field.widget.attrs.get("class", None):
-                    if field_name == "color":
-                        field.widget.attrs['class'] = 'coloris ' + TEXT_INPUT_CLASS
-                        field.widget.attrs['data-coloris'] = ''
-                    elif input_type == 'text':
+                    # if field_name == "color":
+                    #     field.widget.attrs['class'] = 'coloris ' + TEXT_INPUT_CLASS
+                    #     field.widget.attrs['data-coloris'] = ''
+                    if input_type == 'text':
                         field.widget.attrs['class'] = TEXT_INPUT_CLASS
                     
                     elif input_type == 'password':
@@ -47,10 +47,10 @@ class CustomForm(forms.Form):
                         field.widget.attrs['class'] = RADIO_INPUT_CLASS
                     # field.label.attrs['class'] = RADIO_INPUT_LABEL_CLASS
                 else:
-                    if field_name == "color":
-                        field.widget.attrs['class'] += 'coloris ' + TEXT_INPUT_CLASS
-                        field.widget.attrs['data-coloris'] = ''
-                    elif input_type == 'text':
+                    # if field_name == "color":
+                    #     field.widget.attrs['class'] += 'coloris ' + TEXT_INPUT_CLASS
+                    #     field.widget.attrs['data-coloris'] = ''
+                    if input_type == 'text':
                         field.widget.attrs['class'] += TEXT_INPUT_CLASS
                     
                     elif input_type == 'password':
@@ -88,10 +88,10 @@ class CustomModelForm(forms.ModelForm):
                 input_type = getattr(field.widget, 'input_type', None)
                 # input_type = field.widget.input_type
                 if not field.widget.attrs.get("class", None):
-                    if field_name == "color":
-                        field.widget.attrs['class'] = 'coloris ' + TEXT_INPUT_CLASS
-                        field.widget.attrs['data-coloris'] = ''
-                    elif input_type == 'email':
+                    # if field_name == "color":
+                    #     field.widget.attrs['class'] = 'coloris ' + TEXT_INPUT_CLASS
+                    #     field.widget.attrs['data-coloris'] = ''
+                    if input_type == 'email':
                         field.widget.attrs['class'] = TEXT_INPUT_CLASS
                     elif input_type == 'text':
                         field.widget.attrs['class'] = TEXT_INPUT_CLASS
@@ -110,10 +110,10 @@ class CustomModelForm(forms.ModelForm):
                         field.widget.attrs['class'] = TEXT_INPUT_CLASS
                     # field.label.attrs['class'] = RADIO_INPUT_LABEL_CLASS
                 else:
-                    if field_name == "color":
-                        field.widget.attrs['class'] += 'coloris ' + TEXT_INPUT_CLASS
-                        field.widget.attrs['data-coloris'] = ''
-                    elif input_type == 'email':
+                    # if field_name == "color":
+                    #     field.widget.attrs['class'] += 'coloris ' + TEXT_INPUT_CLASS
+                    #     field.widget.attrs['data-coloris'] = ''
+                    if input_type == 'email':
                         field.widget.attrs['class'] += TEXT_INPUT_CLASS
                     elif input_type == 'text':
                         field.widget.attrs['class'] += TEXT_INPUT_CLASS
@@ -194,6 +194,39 @@ class PasswordForm(forms.Form):
             raise forms.ValidationError("Passwords doesn't match. Both passwords must be same.")
         return self.cleaned_data
     
+
+
+class SpecializationForm(CustomModelForm):
+    class Meta:
+        model=Specialization
+        fields=['name','description']
+       
+    def __init__(self, *args, **kwargs):
+        super(SpecializationForm, self). __init__( *args, **kwargs)
+        # Customize address field as textarea
+        self.fields['description'].widget = forms.Textarea(attrs={
+            'rows': 3,
+            'placeholder': 'Enter Description',
+            'class': 'form-control w-100',  # Adjust width or other classes as needed
+        })
+        self.custom_field_class()
+
+class QualificationForm(CustomModelForm):
+    class Meta:
+        model=Qualification
+        fields=['title','issuing_authority','description']
+       
+    def __init__(self, *args, **kwargs):
+        super(QualificationForm, self). __init__( *args, **kwargs)
+        # Customize address field as textarea
+        self.fields['description'].widget = forms.Textarea(attrs={
+            'rows': 3,
+            'placeholder': 'Enter Description',
+            'class': 'form-control w-100',  # Adjust width or other classes as needed
+        })
+        self.custom_field_class()
+
+
 
 class HospitalForm(CustomModelForm):
     class Meta:
