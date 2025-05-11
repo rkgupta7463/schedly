@@ -8,23 +8,7 @@ from core.forms import CustomUserRegistrationForm
 from django.shortcuts import redirect
 
 # Create your views here.
-def index(request):
-    return render(request, 'main/index.html')
 
-def about_us(request):
-    return render(request, 'main/about.html')
-
-def contact_us(request):
-    return render(request, 'main/contact.html')
-
-def doctor_list(request):
-    return render(request, 'main/doctor.html')
-
-def department_list(request):
-    return render(request, 'main/dep.html')
-
-def services(request):
-    return render(request, 'main/services.html')
 
 @csrf_exempt
 def login_view(request):
@@ -69,3 +53,24 @@ def register_view(request):
         form = CustomUserRegistrationForm()
     return render(request, "main/partials/form.html", {"form": form})
 
+def logout_view(request):
+    logout(request)
+    return redirect('/')
+
+def index(request):
+    return render(request, 'main/index.html')
+
+def about_us(request):
+    return render(request, 'main/about.html')
+
+def contact_us(request):
+    return render(request, 'main/contact.html')
+
+def doctor_list(request):
+    return render(request, 'main/doctor.html')
+
+def department_list(request):
+    return render(request, 'main/dep.html')
+
+def services(request):
+    return render(request, 'main/services.html')

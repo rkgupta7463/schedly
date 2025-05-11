@@ -67,9 +67,24 @@
                                 </li>
                             </ul>
                             <!-- Right-aligned login button -->
-                            <div class="d-flex">
-                                <a id="loginBtn" class="btn btn-primary" href="{% url 'main_login' %}">Login/Register</a>
-                            </div>
+                             {% if not request.user.is_authenticated %}
+                             <div class="d-flex">
+                                 <a id="loginBtn" class="btn btn-primary" href="{% url 'main_login' %}">Login/Register</a>
+                                </div>
+                                {% else %}
+                                <li class="nav-item dropdown d-flex">
+                                    <a class="nav-link dropdown-toggle btn btn-primary p-2 mx-4" href="blog.html" id="navbarDropdown"
+                                        role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Profile
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="services.html">Account</a>
+                                        <a class="dropdown-item" href="{% url 'main_logout' %}">Logout</a>
+                                    </div>
+                                {% comment %} <div class="">
+                                    <a id="loginBtn" class="btn btn-primary p-2 mx-4" href="#">Profile</a>
+                                </div> {% endcomment %}
+                            {% endif %}
                         </div>
                     </nav>
                 </div>
