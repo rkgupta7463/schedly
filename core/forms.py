@@ -44,9 +44,8 @@ class CustomUserRegistrationForm(CustomModelForm):
         model = CustomUser
         fields = [
             # Always visible
-            'full_name', 'email', 'phone', 'gender', 'date_of_birth',
-            'address', 'city', 'state', 'country', 'pincode',
-            'role', 'profile_picture',
+            'role','full_name', 'email', 'phone', 'gender', 'date_of_birth',
+            'address', 'city', 'state', 'country', 'pincode','profile_picture',
 
             # Doctor-specific
             'specialization', 'qualification_level', 'experience_years',
@@ -56,7 +55,6 @@ class CustomUserRegistrationForm(CustomModelForm):
             # Patient-specific
             'blood_group', 'emergency_contact', 'insurance_provider',
             'insurance_number',
-
         ]
 
         widgets = {

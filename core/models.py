@@ -4,6 +4,8 @@ from django.utils import timezone
 from django.conf import settings
 from ckeditor.fields import RichTextField
 from multiselectfield import MultiSelectField
+import secrets
+import string
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email=None, phone=None, password=None, **extra_fields):
@@ -131,6 +133,7 @@ DAYS_CHOICES = [
 ]
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+    registration_code=models.CharField(max_length=16,unique=True)
     # Basic contact info
     email = models.EmailField(unique=True, null=True, blank=True)
     phone = models.CharField(max_length=15, unique=True, null=True, blank=True)
@@ -170,7 +173,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         help_text="Choose your qualification by selecting"
     )
     experience_years = models.PositiveIntegerField(blank=True, null=True)
-    registration_number = models.CharField(max_length=50, blank=True, null=True,help_text="Official license number or registration number")
+    registration_number = models.CharField(max_length=50, unique=True,help_text="Official license number or registration number")
     consultation_fee = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     available_from = models.TimeField(blank=True, null=True)
     available_to = models.TimeField(blank=True, null=True)
@@ -187,7 +190,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     blood_group = models.CharField(max_length=3, blank=True, null=True)
     emergency_contact = models.CharField(max_length=15, blank=True, null=True)
     insurance_provider = models.CharField(max_length=100, blank=True, null=True)
-    insurance_number = models.CharField(max_length=50, blank=True, null=True)
+    insurance_number = models.CharField(max_length=50, blank=True, null=True,unique=True)
     medical_history = models.TextField(blank=True, null=True)
 
     # Staff/General purpose
@@ -209,6 +212,16 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = []
 
     objects = CustomUserManager()
+
+    def generate_registration_code(self):
+        """Generates a random 16-character registration code."""
+        characters = string.ascii_uppercase + string.digits
+        return ''.join(secrets.choice(characters) for i in range(16))
+
+    def save(self, *args, **kwargs):
+        if not self.registration_code:
+            self.registration_code = self.generate_registration_code()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.full_name or self.email or self.phone
@@ -251,9 +264,9 @@ class Specialization(models.Model):
     
 
 class Qualification(models.Model):
-    title = models.CharField(max_length=100, unique=True)  # e.g. MBBS, MD, BDS
-    issuing_authority = models.CharField(max_length=150, blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
+    title = models.CharField(max_length=100, unique=True,help_text="Enter the name of the qualification (e.g., MBBS, MD, BDS). Must be unique.")  # e.g. MBBS, MD, BDS
+    issuing_authority = models.CharField(max_length=150, blank=True, null=True,help_text="Name of the authority or institution that issues this qualification (optional).")
+    description = models.TextField(blank=True, null=True,help_text="Detailed description of the qualification (optional).")
 
     is_active = models.BooleanField(default=True)
     created_by = models.ForeignKey(

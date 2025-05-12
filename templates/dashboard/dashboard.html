@@ -29,7 +29,7 @@
                     <div class="card-body">
                         <i class="ti ti-building-hospital display-6 text-primary"></i>
                         <h5 class="card-title mt-2">Total Hospitals</h5>
-                        <h3 class="card-text">{{ total_hospitals }}</h3>
+                        <h3 class="card-text">{% if total_hospitals %}{{ total_hospitals }}{% else %}0{% endif %}</h3>
                     </div>
                 </div>
             </div>
@@ -40,7 +40,7 @@
                     <div class="card-body">
                         <i class="ti ti-message-star display-6 text-success"></i>
                         <h5 class="card-title mt-2">Total Reviews</h5>
-                        <h3 class="card-text">{{ total_reviews }}</h3>
+                        <h3 class="card-text">{% if total_reviews %}{{ total_reviews }}{% else %}0{% endif %}</h3>
                     </div>
                 </div>
             </div>
@@ -51,7 +51,7 @@
                     <div class="card-body">
                         <i class="ti ti-star display-6 text-warning"></i>
                         <h5 class="card-title mt-2">Average Rating</h5>
-                        <h3 class="card-text">{{ average_hospital_rating }}</h3>
+                        <h3 class="card-text">{% if average_hospital_rating %}{{ average_hospital_rating }}{% else %}0{% endif %}</h3>
                     </div>
                 </div>
             </div>
@@ -62,7 +62,7 @@
                     <div class="card-body">
                         <i class="ti ti-trophy display-6 text-info"></i>
                         <h5 class="card-title mt-2">Top Reviewed</h5>
-                        <h4 class="card-text">{{ most_reviewed_hospital }}</h4>
+                        <h4 class="card-text">{% if most_reviewed_hospital %}{{ most_reviewed_hospital }}{% else %}0{% endif %}</h4>
                     </div>
                 </div>
             </div>

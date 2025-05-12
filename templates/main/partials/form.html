@@ -5,6 +5,7 @@
       hx-target="#response_register"
       hx-on::after-request="this.reset()">
   {% csrf_token %}
+  
   {{ form.non_field_errors }}
 
   <!-- ✅ Always visible fields -->

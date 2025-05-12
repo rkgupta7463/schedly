@@ -54,6 +54,24 @@
 
     <!-- htmx cdn -->
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <style>
+      .password-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.password-toggle {
+  cursor: pointer;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  color: #666;
+}
+
+    </style>
   </head>
 
   <body>
@@ -98,7 +116,7 @@
         <div class="d-none d-lg-flex col-lg-8 p-0">
           <div class="auth-cover-bg auth-cover-bg-color d-flex justify-content-center align-items-center">
             <img
-              src="{% static 'assets/img/bg/private-bg-02.jpg' %}"
+              src="{% static 'main/img/logo/bg-login.png' %}"
               alt="auth-login-cover"
               class="my-5 auth-illustration"
               data-app-light-img="backgrounds/login.jpeg"
@@ -131,18 +149,21 @@
                   autofocus required/>
               </div>
               <div class="mb-6 form-password-toggle">
-                <label class="id_password" for="login-password">Password</label>
-                <div class="input-group input-group-merge">
+                <label class="id_password" for="signin-password">Password</label>
+                <div class="input-group input-group-merge password-wrapper">
                   <input
                     type="password"
-                    id="id_password"
+                    id="signin-password"
                     class="form-control"
                     name="password"
-                    placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
-                    aria-describedby="password" required/>
-                  <span class="input-group-text cursor-pointer"><i class="ti ti-eye-off"></i></span>
+                    placeholder="••••••••••••"
+                    aria-describedby="password"
+                    required
+                  />
+                  <span class="password-toggle" onclick="togglePassword('signin-password', this)">👁️</span>
                 </div>
               </div>
+
               <div class="my-8">
                 <div class="d-flex justify-content-between">
                   <div class="form-check mb-0 ms-2">
@@ -198,5 +219,18 @@
 
     <!-- Page JS -->
     <script src="{% static 'js/pages-auth.js' %}"></script>
+
+    <script>
+      function togglePassword(inputId, el) {
+        const input = document.getElementById(inputId);
+        if (input.type === "password") {
+          input.type = "text";
+          el.textContent = '🙈';
+        } else {
+          input.type = "password";
+          el.textContent = '👁️';
+        }
+      }
+</script>
   </body>
 </html>
