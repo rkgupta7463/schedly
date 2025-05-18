@@ -26,6 +26,7 @@ class CustomUserManager(BaseUserManager):
 
 # Role/Access Control
 ROLE_CHOICES = [
+    (0, "Select Role"),
     (1, "Patient"),
     (2, "Doctor"),
     (3, "Nurse"),
@@ -153,7 +154,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     # Role
     role = models.PositiveSmallIntegerField(
         choices=ROLE_CHOICES,
-        default=1
+        default=0
         )
 
     # Optional fields used based on role
@@ -173,7 +174,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         help_text="Choose your qualification by selecting"
     )
     experience_years = models.PositiveIntegerField(blank=True, null=True)
-    registration_number = models.CharField(max_length=50, unique=True,help_text="Official license number or registration number")
+    registration_number = models.CharField(max_length=50, unique=True,help_text="Official license number or registration number",null=True,blank=True)
     consultation_fee = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     available_from = models.TimeField(blank=True, null=True)
     available_to = models.TimeField(blank=True, null=True)
@@ -281,3 +282,101 @@ class Qualification(models.Model):
 
     def __str__(self):
         return self.title
+
+
+
+
+## email templates model
+class EmailTemplate(models.Model):
+    template_name = models.CharField(
+        max_length=100, unique=True,
+    )
+    slug = models.SlugField(unique=True)
+    subject = models.CharField(
+        max_length=100,
+    )
+    html_header = models.TextField(blank=True, null=True, )
+    html_footer =models.TextField(blank=True, null=True, )
+
+    heading = models.CharField(
+        max_length=100,
+    )
+
+    plain_text = models.TextField(
+    )
+
+    html = models.TextField(
+    )
+
+    locale = models.CharField(
+        max_length=10,
+        blank=True,
+        null=True,
+    )
+
+    def _str_(self):
+        return '%s' % self.template_name
+
+    class Meta:
+        ordering = ('template_name', 'locale')
+
+        permissions = (
+            ("mandate_add_emailtemplate", "Mandate Add EmailTemplate"),
+            ("mandate_edit_emailtemplate", "Mandate Edit EmailTemplate"),
+            ("mandate_delete_emailtemplate", "Mandate Delete EmailTemplate"),
+        )
+        
+    def save(self):
+
+        super(EmailTemplate,self).save()
+
+    def __str__(self):
+        return f"{self.template_name} - {self.subject}"
+
+
+
+
+import datetime
+import hashlib
+from django.utils import timezone
+import time, datetime
+
+class RegistrationLink(models.Model):
+    user =models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    hash = models.CharField(max_length=64, unique=True, blank=True)
+    expired =models.BooleanField(default=False)
+    expiry_time = models.DateTimeField(null=True, blank=True)
+
+
+    def save(self):
+        if not self.id:
+            self.expiry_time = timezone.now()+ datetime.timedelta(2,0,0)
+        text= (str(self.user.phone) + str(time.time())).encode("utf-8")
+        self.hash = hashlib.sha256(text).hexdigest()
+
+        super(RegistrationLink, self).save()
+    def __str__(self):
+        return str(self.user)
+
+
+class PasswordGenLink(models.Model):
+    email = models.EmailField()
+    hash = models.CharField(max_length=64)
+    expired = models.BooleanField(default=False)
+    created = models.DateTimeField(editable=False)
+    expiry_time = models.DateTimeField(null=True, blank=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+
+    def save(self):
+        if not self.id:
+            self.created =timezone.now()
+        self.hash = hashlib.sha256(str(time.time()).encode("utf-8")+str(self.email).encode("utf-8")).hexdigest()
+        super(PasswordGenLink,self ).save()
+
+
+
+
+
+
+
+
