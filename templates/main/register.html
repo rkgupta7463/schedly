@@ -103,7 +103,7 @@
       <div class="w-100 d-flex flex-column" style="max-height: 100vh; overflow-y: auto; padding: 2rem 2.5rem;">
 
         <div class="text-center mb-4">
-          <img src="{% static 'your-logo.png' %}" alt="Schedly Logo" class="mb-3" style="width: 60px;">
+          <img src="{% static 'main/img/logo/schedly-logo-2.png' %}" alt="Schedly Logo" class="mb-3" style="width: 100px;">
           <h4 class="fw-bold">Create your account</h4>
         </div>
 
@@ -117,6 +117,7 @@
           <!-- Role selection -->
           <div>
             <label class="form-label fw-semibold">Select Role</label>
+            
             {{ form.role|add_class:"form-select form-select-lg" }}
           </div>
 

@@ -15,5 +15,9 @@ urlpatterns = [
     path('services/',services,name="services"),
     path('doctor/',doctor_list,name="doctor"),
     path('department/',department_list,name="departments"),
+    
+    ## url's for `reset password`
+    path('reset_password/<str:hash>/', forgot_password_reg_email,name="forgot_password_reg_email"),
+    path('set_new_password/<str:hash>/', new_set_password_reg_email,name="set_new_pass_reg")
 ]
 

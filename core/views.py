@@ -1,11 +1,14 @@
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth import authenticate
 import socket
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login,logout
-from core.forms import CustomUserRegistrationForm
+from core.forms import *
+from core.models import *
 from django.shortcuts import redirect
+from core.tasks import *
+from django.utils.timezone import timedelta
 
 # Create your views here.
 
@@ -68,7 +71,19 @@ def register_user_view(request):
     if request.method == "POST":
         form = CustomUserRegistrationForm(request.POST, request.FILES)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.save()
+                # Generate registration link
+            if user:
+                reg_link = RegistrationLink(user=user)
+                reg_link.expiry_time = timezone.now() + timedelta(hours=24, minutes=59, microseconds=59)
+                reg_link.save()
+                try:
+                    send_email_password_set_new.delay(to_mail=user.email, hash_code=reg_link.hash)
+                    print("Email sent!")
+                except Exception as e:
+                    print("Email sending error: ", e)
+
             return HttpResponse("""<div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
                         <strong>Success!</strong> A link to set your password has been sent to your email. Please check your inbox (or spam folder) and follow the instructions to set your new password.
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -82,9 +97,103 @@ def register_user_view(request):
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     """)
+        
 
     form = CustomUserRegistrationForm()
     return render(request, 'main/register.html', {'form': form})
+
+
+
+
+
+#### forgot_password_reg_email
+def forgot_password_reg_email(request, hash):
+    pass_forgot=None
+    error_messages=None
+    try:
+        pass_forgot = get_object_or_404(PasswordGenLink, hash=hash)
+    except Exception as e:
+        return HttpResponse("The Link is Invalid or Expired!")
+
+    if pass_forgot.expired or timezone.now() > pass_forgot.expiry_time:
+        pass_forgot.expired = True
+        pass_forgot.save()
+        return HttpResponse("The Link is Invalid or Expired!")
+
+    if request.method == "POST":
+        form = EPasswordChangeForm(request.POST)
+        if form.is_valid():
+            user = pass_forgot.user  
+            user.set_password(form.cleaned_data["password1"])
+            user.save()
+
+            pass_forgot.expired = True
+            pass_forgot.save()
+
+            return HttpResponse(
+                    status=204,
+                    headers={
+                        'HX-Redirect': "/accounts/login/"
+                    }
+                )
+        else:
+            # Collect form errors and return as an alert
+            for field, error_list in form.errors.items():
+                for error in error_list:
+                    # messages.error(request, f"{field.capitalize()}: {error}")
+                    return HttpResponse(f"""<div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+                    <strong>Warning!</strong> {field.capitalize()}: {error}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>""")
+        
+    else:
+        form = EPasswordChangeForm()
+
+    return render(request, "dashboard/accounts/auth-reset-password-basic.html", {"form": form,"message":error_messages,"hash":hash})
+
+
+### new set password
+def new_set_password_reg_email(request, hash):
+    error_messages=None
+    try:
+        reg_link = RegistrationLink.objects.get(hash=hash)
+    except:
+        print("exception block of coding is getting runs.....")
+        return HttpResponse("The Link is Invalid or Expired!")
+    
+    if timezone.now() > reg_link.expiry_time:
+        reg_link.expired=True
+        print("if block of coding is getting runs.....")
+        return HttpResponse("The Link is Invalid or Expired!")
+
+    if request.method == "POST":
+        form = EPasswordChangeForm(request.POST)
+        if form.is_valid():
+            u = reg_link.user
+            u.set_password(form.cleaned_data["password1"])
+            u.is_verified=True
+            u.save()
+            reg_link.expired = True
+            reg_link.save()
+            return HttpResponse(
+                    status=204,
+                    headers={
+                        'HX-Redirect': "/main/login/"
+                    }
+                )
+        else:
+            # Collect form errors and return as an alert
+            for field, error_list in form.errors.items():
+                for error in error_list:
+                    return HttpResponse(f"""<div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+                    <strong>Warning!</strong> {field.capitalize()}: {error}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>""")
+    else:
+        form = EPasswordChangeForm()
+
+    return render(request, "dashboard/accounts/auth-set_new-password-basic.html", {"form": form,"message":error_messages,"hash":hash}, )
+
 
 
 def logout_view(request):

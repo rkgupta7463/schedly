@@ -5,3 +5,4 @@ from .models import *
 admin.site.register(CustomUser)
 admin.site.register(Specialization)
 admin.site.register(Qualification)
+admin.site.register(EmailTemplate)

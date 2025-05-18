@@ -110,3 +110,44 @@ class EmailLoginForm(forms.Form):
             if not user:
                 raise forms.ValidationError("Invalid email or password")
         return self.cleaned_data
+
+
+
+##### forget password form
+attrs_dict={}
+from django.utils.translation import gettext_lazy as _
+
+
+attrs_dict = {'class': 'form-control'}
+
+class EPasswordChangeForm(forms.Form):
+    password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs=attrs_dict, render_value=False),
+        label=_("New password")
+    )
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs=attrs_dict, render_value=False),
+        label=_("New password (again)")
+    )
+
+    password_pattern = r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get("password1")
+        password2 = cleaned_data.get("password2")
+
+        if password1 and password2:
+            if password1 != password2:
+                self.add_error("password2", _("Passwords do not match. Please enter the same password."))
+
+            if not re.match(self.password_pattern, password1):
+                self.add_error(
+                    "password1",
+                    _("Password must be at least 8 characters long and include an uppercase letter, "
+                      "a lowercase letter, a number, and a special character (#?!@$%^&*-).")
+                )
+
+        return cleaned_data
+
+
