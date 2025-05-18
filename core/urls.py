@@ -18,6 +18,8 @@ urlpatterns = [
     
     ## url's for `reset password`
     path('reset_password/<str:hash>/', forgot_password_reg_email,name="forgot_password_reg_email"),
+
+    path('forgot/password/', forgot_password_form,name="forgot_password"),
     path('set_new_password/<str:hash>/', new_set_password_reg_email,name="set_new_pass_reg")
 ]
 

@@ -107,6 +107,38 @@ def register_user_view(request):
 
 
 #### forgot_password_reg_email
+
+def forgot_password_form(request):
+    if request.method == "POST":
+        form = ForgotPasswordForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data.get("email")
+            try:
+                user=CustomUser.objects.get(email=email)
+            except:
+                return HttpResponse("""<div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Warning!</strong> This email is not registered in our Portal.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>""")
+            if user:
+                expiry_time = timezone.now() + timezone.timedelta(hours=1)  # 1 hour expiry
+                reset_link = PasswordGenLink(user=user,email=email, expiry_time=expiry_time)
+                reset_link.save()
+
+                send_email_password_forgot.delay(to_mail=email, hash_code=reset_link.hash)
+                print("mail sent!")
+                return HttpResponse("""<div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Email Sent!</strong> A password reset link has been sent to your registered email address. 
+                    Please check your inbox and follow the instructions to reset your password.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>""")
+    else:
+        form = ForgotPasswordForm()
+
+    return render(request, "dashboard/accounts/auth-forgot-password-basic.html", {"form": form})
+
+
+
 def forgot_password_reg_email(request, hash):
     pass_forgot=None
     error_messages=None
