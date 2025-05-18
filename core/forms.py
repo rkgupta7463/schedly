@@ -3,7 +3,7 @@ from .models import *
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate
-from dashboard.forms import CustomModelForm
+from dashboard.forms import CustomModelForm,CustomForm
 import re
 from django.core.exceptions import ValidationError
 from schedly.widgets import *
@@ -150,4 +150,13 @@ class EPasswordChangeForm(forms.Form):
 
         return cleaned_data
 
+
+
+
+class ForgotPasswordForm(CustomForm):
+    email = forms.EmailField()
+
+    def __init__(self,*args,**kwargs):
+        super(ForgotPasswordForm,self).__init__(*args,**kwargs)
+        return self.custom_field_class()
 
