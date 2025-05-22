@@ -137,17 +137,14 @@ APPOINTMENT_STATUS_CHOICES = [
 
 
 class Appointment(models.Model):
-
-    hospital = models.ForeignKey("Hospital", on_delete=models.CASCADE, related_name="appointments_hospital")
-    doctor = models.ForeignKey("core.CustomUser", on_delete=models.CASCADE, related_name="doctor_appointments")
-    patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="appointments_patient")
-
-    appointment_date = models.DateField()
-    appointment_start_time = models.TimeField()
-    appointment_end_time = models.TimeField()
-
+    name=models.CharField(max_length=100,blank=True,null=True)
+    email=models.EmailField(blank=True,null=True)
+    phone=models.CharField(max_length=15,blank=True,null=True)
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name="appointments_hospital")
+    services=models.ForeignKey('HospitalServices', on_delete=models.CASCADE, related_name="appointments_services")
+    timeslot=models.ForeignKey('TimeSlot', on_delete=models.CASCADE, related_name="appointments_timeslot")
+    appointment_date = models.DateField(help_text="Date of the appointment")
     symptoms = models.TextField(blank=True, null=True, help_text="Short description of patient symptoms or concerns.")
-    notes = models.TextField(blank=True, null=True, help_text="Doctor or admin notes for internal use.")
 
     status = models.PositiveIntegerField(
         choices=APPOINTMENT_STATUS_CHOICES,
@@ -179,10 +176,6 @@ class Appointment(models.Model):
         related_name='appointments_updated'
     )
 
-    class Meta:
-        unique_together = ('doctor', 'appointment_date', 'appointment_start_time')
-        ordering = ['-appointment_date', '-appointment_start_time']
-
     def __str__(self):
         return f"Appointment #{self.booking_reference} - {self.patient} with {self.doctor} at {self.hospital}"
 
@@ -213,3 +206,48 @@ class DoctorHospitalAssociation(models.Model):
 
     def __str__(self):
         return f"{self.doctor} - {self.hospital} ({self.role})"
+    
+
+class HospitalServices(models.Model):
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name="services_offered")
+    service_name = models.CharField(max_length=100, help_text="Name of the service offered by the hospital")
+    service_description = models.TextField(help_text="Description of the service offered by the hospital")
+    service_price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Price of the service offered by the hospital")
+    timslot=models.ManyToManyField('TimeSlot', blank=True, help_text="Time slots available for the service")
+    is_active = models.BooleanField(default=True, help_text="Whether the service is currently active")
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='services_created'
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='services_updated'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    class Meta:
+        ordering = ['service_name']
+
+
+
+class TimeSlot(models.Model):
+    start_time = models.TimeField(
+        help_text="Start time of the time slot (e.g., 08:00 AM)"
+    )
+    end_time = models.TimeField(
+        help_text="End time of the time slot (e.g., 10:00 AM)"
+    )
+
+
+    @property
+    def label(self):
+        return f"{self.start_time.strftime('%I:%M %p')} TO {self.end_time.strftime('%I:%M %p')}"
+    
+    def __str__(self):
+        return self.label

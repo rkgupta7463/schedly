@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core','ckeditor','widget_tweaks','django_select2','ajax_datatable','dashboard','hospital_app',
+    'core','dashboard','hospital_app','ckeditor','widget_tweaks','django_select2','ajax_datatable',
 ]
 
 MIDDLEWARE = [
@@ -147,17 +147,39 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 
-REDIS_HOST = 'localhost'  # Replace with your Redis host
-REDIS_PORT = 6379         # Replace with your Redis port
-REDIS_DB = 0              # Redis database index
-REDIS_URL="redis://127.0.0.1"
+#### this is for linux / unbutu
+# REDIS_HOST = 'localhost'  # Replace with your Redis host
+# REDIS_PORT = 6379         # Replace with your Redis port
+# REDIS_DB = 0              # Redis database index
+# REDIS_URL="redis://127.0.0.1"
 
 
-CELERY_BROKER_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}'
-CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+# CELERY_BROKER_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}'
+# CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+# CELERY_ACCEPT_CONTENT = ['json']
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_RESULT_SERIALIZER = 'json'
+
+## this is for windows
+# RabbitMQ settings for Celery
+
+# Replace these as per your RabbitMQ installation
+RABBITMQ_USER = 'guest'
+RABBITMQ_PASSWORD = 'guest'
+RABBITMQ_HOST = 'localhost'
+RABBITMQ_PORT = 5672  # Default RabbitMQ port
+RABBITMQ_VHOST = '/'  # Default virtual host
+
+# Construct the broker URL
+CELERY_BROKER_URL = f'amqp://{RABBITMQ_USER}:{RABBITMQ_PASSWORD}@{RABBITMQ_HOST}:{RABBITMQ_PORT}{RABBITMQ_VHOST}'
+
+# If you are not using a result backend, you can skip this
+# For result backend with Redis or RPC:
+CELERY_RESULT_BACKEND = 'rpc://'  # or use Redis, e.g., 'redis://localhost:6379/0'
+
+# Celery data format settings
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-
 
 SITE_ID = 1

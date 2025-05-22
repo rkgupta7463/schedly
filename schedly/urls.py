@@ -21,9 +21,10 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('select2/', include('django_select2.urls')),
+    path("select2/", include("django_select2.urls")),
     path('schedly/admin/', include("dashboard.urls")),
     path('', include("core.urls")),
+    path('hospital/', include("hospital_app.urls")),
 ]
 
 if settings.DEBUG:
