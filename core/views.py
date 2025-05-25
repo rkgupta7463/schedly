@@ -227,13 +227,12 @@ def new_set_password_reg_email(request, hash):
     return render(request, "dashboard/accounts/auth-set_new-password-basic.html", {"form": form,"message":error_messages,"hash":hash}, )
 
 
-
 def logout_view(request):
     logout(request)
     return redirect('/')
 
 def index(request):
-    return render(request, 'main/index.html')
+    return render(request, 'index.html')
 
 def about_us(request):
     return render(request, 'main/about.html')
