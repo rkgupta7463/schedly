@@ -34,7 +34,7 @@ def login_view(request):
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>""")
 
-    return render(request, 'main/login.html')
+    return render(request, 'login.html')
 
 def load_role_specific_fields(request):
     role = request.GET.get('role')
