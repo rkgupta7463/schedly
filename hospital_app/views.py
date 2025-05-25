@@ -2,16 +2,20 @@ from django.shortcuts import render,redirect
 from .forms import *
 from .models import *
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+from core.tasks import appointment_confirmation,secure_account_set_password
 
 def book_appoinment(request):
     if request.method == "POST":
         form = AppointmentForm(request.POST)
         if form.is_valid():
-            form.save()
+            f=form.save(commit=False)
+            f.save()
             print("form has submitted!!")
-            return redirect('home')
+            appointment_confirmation.delay(to_mail=f.email,appoinment_id=f.id)
+            return HttpResponse("""<div class="alert alert-success mt-2" role="alert">Appoinment Booking Confirmed!</div>""")
         else:
-            return render(request, 'book_appoinment.html', {'form': form})
+            print("fo9orm error:- ",form.errors)
     else:
         form = AppointmentForm()
     

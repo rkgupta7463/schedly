@@ -257,3 +257,18 @@ class AdditionalHospitalImgForm(CustomModelForm):
         super(AdditionalHospitalImgForm, self).__init__(*args,**kwargs)
         self.custom_field_class()
 
+
+
+class HospitalServicesForm(CustomModelForm):
+    class Meta:
+        model = HospitalServices
+        fields = ['service_name','service_description','service_price','timslot']
+
+    def __init__(self, *args, **kwargs):
+        super(HospitalServicesForm, self).__init__(*args, **kwargs)
+        self.fields['service_description'].widget = forms.Textarea(attrs={
+            'rows': 3,
+            'class': 'form-control w-100',  # Adjust width or other classes as needed
+        })
+        self.custom_field_class()
+        

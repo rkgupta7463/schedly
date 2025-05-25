@@ -12,7 +12,7 @@ from django.contrib.sites.models import Site
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
-
+from hospital_app.models import Appointment
 
 
 
@@ -91,6 +91,47 @@ def send_email_password_forgot(hash_code,to_mail=None,cc_mails=None):
     header = Template(t.html_header).render(Context({}))
     footer = Template(t.html_footer).render(Context({}))
     html = Template(t.html).render(Context({ "data": rest_url}))
+    
+    html = header + html + footer
+
+    send_email(subject,to_mail,html,plain_text,cc_mails)
+
+    print("email has sent!")
+
+@shared_task
+def secure_account_set_password(hash_code,to_mail=None,cc_mails=None):
+    t = get_object_or_404(EmailTemplate, slug="secure-your-account-set-password")
+    
+    rest_url=f"http://{Site.objects.get_current().domain}/reset_password/{hash_code}"
+
+    start_date = now()
+    subject = Template(t.subject).render(Context({"start_date": start_date.strftime("%d-%m-%Y")}))
+    plain_text = Template(t.plain_text).render(Context({"start_date": start_date.strftime("%d-%m-%Y")}))
+    header = Template(t.html_header).render(Context({}))
+    footer = Template(t.html_footer).render(Context({}))
+    html = Template(t.html).render(Context({ "data": rest_url}))
+    
+    html = header + html + footer
+
+    send_email(subject,to_mail,html,plain_text,cc_mails)
+
+    print("email has sent!")
+
+
+@shared_task
+def appointment_confirmation(appoinment_id,to_mail=None,cc_mails=None):
+    t = get_object_or_404(EmailTemplate, slug="appointment-confirmation")
+    
+    appointment = get_object_or_404(Appointment, id=appoinment_id)
+    
+    current_site=Site.objects.get_current().domain
+
+    start_date = now()
+    subject = Template(t.subject).render(Context({}))
+    plain_text = Template(t.plain_text).render(Context({}))
+    header = Template(t.html_header).render(Context({}))
+    footer = Template(t.html_footer).render(Context({}))
+    html = Template(t.html).render(Context({"appoinment":appointment,'current_site':current_site}))
     
     html = header + html + footer
 

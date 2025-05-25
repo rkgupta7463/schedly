@@ -51,7 +51,7 @@
 
 
 <div class="modal-body">
-  <form id="form-hx" class="form form-horizontal" enctype="multipart/form-data" hx-encoding='multipart/form-data' hx-post="{% if postUrl %}{{ postUrl }}{% else %}{{ request.path }}{% endif %}" hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}' hx-target="#modal-content" hx-trigger="callform, submit">
+  <form id="form-hx" class="form form-horizontal" enctype="multipart/form-data" hx-encoding='multipart/form-data' hx-post="{% if postUrl %}{{ postUrl }}{% else %}{{ request.path }}{% endif %}" hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}' hx-target="#modal-content" hx-trigger="callform, submit" hx-on::after-request="this.reset()">
     <div class="row">
       {% csrf_token %}
       {% if form.errors %}
@@ -162,7 +162,7 @@
 <script>
   {% comment %} document.addEventListener('DOMContentLoaded', function() { {% endcomment %}
       // Get the form element
-      const form = document.getElementById('form-hx');
+      var form = document.getElementById('form-hx');
 
       // Add event listener for normal form submission
       form.addEventListener('submit', function () {

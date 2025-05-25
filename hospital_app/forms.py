@@ -68,3 +68,15 @@ class AppointmentForm(CustomModelForm):
         self.fields['hospital'].widget.attrs.setdefault('data-placeholder', 'Select a hospital')
         self.fields['services'].widget.attrs.setdefault('data-placeholder', 'Select a service')
         self.fields['timeslot'].widget.attrs.setdefault('data-placeholder', 'Select a time slot')
+
+
+
+class AppoinmentConfirmationForm(CustomModelForm):
+    class Meta:
+        model=Appointment
+        fields=['status','reason_rejection']
+
+    def __init__(self,*args,**kwargs):
+        super(AppoinmentConfirmationForm,self).__init__(*args,**kwargs)
+        self.fields['reason_rejection'].widget.attrs.update({'rows': 3})
+        self.custom_field_class()

@@ -171,7 +171,7 @@ class UserProfileDatatableView(AjaxDatatableView):
                             )
 
     def get_show_column_filters(self, request):
-        return False
+        return True
 
     def get_column_defs(self, request):
         if request.user.is_superuser:
@@ -702,7 +702,7 @@ class HospitalsDatatableView(AjaxDatatableView):
                             )
 
     def get_show_column_filters(self, request):
-        return False
+        return True
 
     def get_column_defs(self, request):
         if request.user.is_superuser:
@@ -780,11 +780,189 @@ def additional_hospital_img(request,hid, pid=None):
 
 def hospital_detail(request,hid):
     hospital = Hospital.objects.get(id=hid)
-    hospital_images = HospitalImage.objects.filter(hospital=hospital)
+    hospital_images = HospitalImage.objects.filter(hospital=hospital).first()
     context={
         'hospital': hospital,
         "hospital_images":hospital_images
         }
     return render(request, 'dashboard/hospital_detail.html', context)
+
+
+def hospital_services_list(request,hid):
+    hospital = Hospital.objects.get(id=hid)
+    services = HospitalServices.objects.filter(hospital=hospital)
+
+    context={
+        'hospital': hospital,
+        'services': services
+        }
+    return render(request, 'dashboard/partials/services_lists.html', context)
+
+### hospital_services
+def hospital_services(request,hid,sid=None):
+    hospital = Hospital.objects.get(id=hid) if hid else None
+    instance = HospitalServices.objects.get(id=sid,hospital=hospital) if hospital and sid else None
+
+    if request.method == "POST":
+        form=HospitalServicesForm(data=request.POST,files=request.FILES or None,instance=instance)
+        if form.is_valid():
+            f=form.save(commit=False)
+            f.hospital=hospital
+            f.created_by=request.user
+            f.updated_by=request.user
+            f.save()
+            print("Services before saving M2M:", form.cleaned_data['timslot'])  # Should not be None
+            form.save_m2m()    # Then save the many-to-many relationships
+            print("form.save_m2m():- ",form.save_m2m())
+
+            toast = {"level": "success", "message": f"Service Added for { hospital.name}!"}
+            return HttpResponse(
+                status=204,
+                headers={
+                    'HX-Trigger': json.dumps({
+                        "Changed": True,
+                        "closeModal": True,
+                        "showToast": toast,
+                        "reloadServices": True
+                        })})
+    else:
+        form=HospitalServicesForm(instance=instance)
+        return render(request, 'dashboard/partials/add_form.html', context={'form': form, "title": f"Edited Hospital Service!" if instance else "Add Hospital's Services!"})
+
+
+
+
+@login_required(login_url="login_admin")
+def hospital_appoinment(request):  
+    query_string = request.GET.urlencode()
+    context = {
+        "title": "Hospital",
+        # "description": "List of Users",
+        "url": f"{reverse('hospitals_appoinment_filtered')}{'?' + query_string if  query_string else ''}",
+        "bread_crumbs":  [
+                        {"name": "Home", "url": reverse("index")}, {"name": "Hospital"}, 
+                    ]
+        }
+    return render(request, 'dashboard/filter-datatable-init.html', context)
+
+
+def hospitals_appoinment_filtered(request):
+    query_string = request.GET.urlencode()
+    
+    filled_fields = 0
+    for key, value in request.GET.items():
+        if value:
+            filled_fields += 1
+            
+    context = {
+        "title": "Hospitals",
+        "description": "List of Hospitals",
+        # "filterForm": {"title": "Filter Users", "form": filter.form, "select2": True},
+        
+        "url": f"{reverse('ajax_datatable_hospitals_appoinment_filter_list',)}?{query_string}",
+        "params": query_string,
+        "filled_fields": filled_fields,
+        # "hx_add_button": [
+        #         {"url": reverse('add_hospital'),"icon": "","text": "Add Hospital", "bs_toggle": "modal"},
+        #         ],
+        # "export_button": {"url": reverse('users_export'), "icon": '<i class="ti ti-table-export"></i>'},
+        # "export_history": {"url": reverse('users_export_history'), "icon": '<i class="ti ti-clock"></i>'},
+    }
+    response = render(request, 'dashboard/partials/filter-datatable.html', context=context)
+    if query_string:
+        response['HX-Trigger'] = json.dumps({"closeModal": True})
+    return response
+
+
+class HospitalsAppoinmentDatatableView(AjaxDatatableView):
+    model = Appointment
+    title = "Appointments"
+    initial_order = [["name", "dsc"], ]
+    length_menu = [[10, 20, 30, 50], [10, 20, 30, 50]]
+    search_values_separator = '+'
+    column_defs = [
+            {'name': 'SN', 'visible': True, 'placeholder': True, 'orderable': False, 'searchable': False, 'className': "sn-no" },
+            {'name': 'booking_reference', 'title': 'Booking Reference No.', 'visible': True, 'orderable': True, 'searchable': True},
+            {'name': 'name', 'title': 'Name', 'visible': True, 'orderable': True, 'searchable': True},
+            {'name': 'email', 'title': 'Email', 'visible': True, 'orderable': True, 'searchable': True},
+            {'name': 'phone', 'title': 'Contact Number', 'visible': True, 'orderable': True, 'searchable': True},
+            # {'name': 'description', 'title': 'Image', 'visible': True, 'orderable': True, 'searchable': True},
+            {'name': 'hospital', 'title': 'Hospital', 'visible': True, 'orderable': True, 'searchable': True},
+            {'name': 'services', 'title': 'Services', 'visible': True, 'orderable': True, 'searchable': True},
+            {'name': 'appointment_date', 'title': 'Appointment Date', 'visible': True, 'orderable': True, 'searchable': True},
+            {'name': 'timeslot', 'title': 'Time Slot', 'visible': True, 'orderable': True, 'searchable': True},
+            {'name': 'status', 'title': 'Status', 'visible': True, 'orderable': True, 'searchable': True,'choices':APPOINTMENT_STATUS_CHOICES},
+            {'name': 'action', "title": "Action",  'visible': True,  'orderable': False,  'searchable': False, 'width': '2rem'},
+    ]
+
+
+    def customize_row(self, row, obj):
+            # Show the first price (or "N/A" if no prices exist)
+        row['action'] = '''
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary btn-icon rounded-pill dropdown-toggle hide-arrow waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="ti ti-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" style="">
+                                <a class="dropdown-item waves-effect" hx-get="%s" hx-target="#modal-content" data-bs-toggle="modal" data-bs-target="#modal">%s</a>
+                                <a class="dropdown-item waves-effect" hx-get="%s" hx-target="#modal-content" data-bs-toggle="modal" data-bs-target="#modal">%s</a>
+                               </ul>
+                        </div>
+                        ''' %(
+                            reverse('comfirm_appoinment', args=(obj.id,)), "Confirmed",
+                            reverse('view_appoinment', args=(obj.id,)), "View",
+                            )
+
+    def get_show_column_filters(self, request):
+        return True
+
+    def get_column_defs(self, request):
+        if request.user.is_superuser:
+            return self.column_defs
+        else:
+            column_defs = [entry for entry in self.column_defs if entry['name'] not in "hospital"]
+            return column_defs 
+    
+    def get_initial_queryset(self, request=None):
+        if request.user.is_superuser:
+            queryset = Appointment.objects.all()
+        else:
+            queryset = Appointment.objects.filter(created_by=request.user)
+        return queryset
+
+
+
+from hospital_app.forms import AppoinmentConfirmationForm
+
+def comfirm_appoinment(request,ap_id):
+    appointment = Appointment.objects.get(id=ap_id)
+    if request.method == 'POST':
+        form=AppoinmentConfirmationForm(data=request.POST,instance=appointment)
+        if form.is_valid():
+            form.save()
+
+            toast = {"level": "success", "message": f"Status of Appoinment has {appointment.get_status_display()} changed!"}
+
+            return HttpResponse(
+                status=204,
+                headers={
+                    'HX-Trigger':json.dumps({
+                            "tableChanged": True,
+                            "closeModal": True,
+                            "showMessage": toast,
+                    })
+                }
+            )
+
+    else:
+        form = AppoinmentConfirmationForm(instance=appointment)
+        return render(request, 'dashboard/partials/add_form.html', context={'form': form, "title": f"Update Confirmation!"})
+
+
+
+
+def view_appoinmemt(request,ap_id):
+    appoinment=Appointment.objects.get(id=ap_id)
+    return render(request,'dashboard/partials/appoinment_view.html',context={'appoinment': appoinment, "title": f"View Appoinment!"})
 
 

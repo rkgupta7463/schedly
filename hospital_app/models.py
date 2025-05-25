@@ -5,7 +5,8 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.core.validators import RegexValidator, URLValidator, EmailValidator
 from ckeditor.fields import RichTextField
-
+import secrets
+import string
 
 class Hospital(models.Model):
     name = models.CharField(max_length=255)
@@ -132,7 +133,6 @@ APPOINTMENT_STATUS_CHOICES = [
     (2, "Confirmed"),
     (3, "Cancelled"),
     (4, "Completed"),
-    (5, "No Show"),
 ]
 
 
@@ -150,6 +150,8 @@ class Appointment(models.Model):
         choices=APPOINTMENT_STATUS_CHOICES,
         default=1
     )
+
+    reason_rejection=models.TextField(null=True,blank=True,help_text="Reason for rejection if applicable")
 
 
     booking_reference = models.CharField(
@@ -177,11 +179,25 @@ class Appointment(models.Model):
     )
 
     def __str__(self):
-        return f"Appointment #{self.booking_reference} - {self.patient} with {self.doctor} at {self.hospital}"
+        return f"Appointment #{self.booking_reference} - {self.name} with {self.services} at {self.hospital}"
 
+    @property
     def is_past_due(self):
         return timezone.now().date() > self.appointment_date
     
+    
+    def generate_registration_code(self):
+        """Generates a random 16-character registration code."""
+        characters = string.ascii_uppercase + string.digits
+        return ''.join(secrets.choice(characters) for i in range(8))
+    
+
+    def save(self, *args, **kwargs):
+        if not self.booking_reference:
+            self.booking_reference = self.generate_registration_code()
+        super().save(*args, **kwargs)
+
+
 class DoctorHospitalAssociation(models.Model):
     doctor = models.ForeignKey('core.CustomUser', on_delete=models.CASCADE,related_name="doctor_association_with")
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE,related_name="hospital_association_with")
@@ -212,7 +228,7 @@ class HospitalServices(models.Model):
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name="services_offered")
     service_name = models.CharField(max_length=100, help_text="Name of the service offered by the hospital")
     service_description = models.TextField(help_text="Description of the service offered by the hospital")
-    service_price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Price of the service offered by the hospital")
+    service_price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Price of the service offered by the hospital", null=True,blank=True)
     timslot=models.ManyToManyField('TimeSlot', blank=True, help_text="Time slots available for the service")
     is_active = models.BooleanField(default=True, help_text="Whether the service is currently active")
     created_by = models.ForeignKey(
@@ -233,6 +249,9 @@ class HospitalServices(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     class Meta:
         ordering = ['service_name']
+
+    def __str__(self):
+        return self.service_name
 
 
 
