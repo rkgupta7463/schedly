@@ -5,7 +5,7 @@
 		<section class="slider">
 			<div class="hero-slider">
 				<!-- Start Single Slider -->
-				<div class="single-slider" style="background-image:url('img/slider2.jpg')">
+				<div class="single-slider" style="background-image:url('{% static 'main_static/img/slider2.jpg' %}')">
 					<div class="container">
 						<div class="row">
 							<div class="col-lg-7">
@@ -23,7 +23,7 @@
 				</div>
 				<!-- End Single Slider -->
 				<!-- Start Single Slider -->
-				<div class="single-slider" style="background-image:url('img/slider.jpg')">
+				<div class="single-slider" style="background-image:url('{% static 'main_static/img/slider.jpg' %}')">
 					<div class="container">
 						<div class="row">
 							<div class="col-lg-7">
@@ -41,7 +41,7 @@
 				</div>
 				<!-- Start End Slider -->
 				<!-- Start Single Slider -->
-				<div class="single-slider" style="background-image:url('img/slider3.jpg')">
+				<div class="single-slider" style="background-image:url('{% static 'main_static/img/slider3.jpg' %}')">
 					<div class="container">
 						<div class="row">
 							<div class="col-lg-7">
@@ -75,9 +75,10 @@
 										<i class="fa fa-ambulance"></i>
 									</div>
 									<div class="single-content">
-										<span>Lorem Amet</span>
+										<span>Get Help Now</span>
 										<h4>Emergency Cases</h4>
-										<p>Lorem ipsum sit amet consectetur adipiscing elit. Vivamus et erat in lacus convallis sodales.</p>
+										<p>We are here to help in emergencies.
+If you are facing an urgent situation, don’t hesitate to contact us immediately. Our team is ready to assist you.</p>
 										<a href="#">LEARN MORE<i class="fa fa-long-arrow-right"></i></a>
 									</div>
 								</div>
@@ -91,9 +92,9 @@
 										<i class="icofont-prescription"></i>
 									</div>
 									<div class="single-content">
-										<span>Fusce Porttitor</span>
+										<span>Check Our Doctors' Availability</span>
 										<h4>Doctors Timetable</h4>
-										<p>Lorem ipsum sit amet consectetur adipiscing elit. Vivamus et erat in lacus convallis sodales.</p>
+										<p>View our doctors' schedule and book appointments at your convenience. Our expert team is here to provide care when you need it most.</p>
 										<a href="#">LEARN MORE<i class="fa fa-long-arrow-right"></i></a>
 									</div>
 								</div>
@@ -107,12 +108,13 @@
 										<i class="icofont-ui-clock"></i>
 									</div>
 									<div class="single-content">
-										<span>Donec luctus</span>
+										<span>Check When We’re Open</span>
 										<h4>Opening Hours</h4>
+										<p style="margin-top:5px;">Let me know if you want it to include days or timing info too.</p>
 										<ul class="time-sidual">
-											<li class="day">Monday - Fridayp <span>8.00-20.00</span></li>
+											<li class="day">Monday - Friday <span>8.00-20.00</span></li>
 											<li class="day">Saturday <span>9.00-18.30</span></li>
-											<li class="day">Monday - Thusday <span>9.00-15.00</span></li>
+											{% comment %} <li class="day">Monday - Thusday <span>9.00-15.00</span></li> {% endcomment %}
 										</ul>
 										<a href="#">LEARN MORE<i class="fa fa-long-arrow-right"></i></a>
 									</div>
@@ -662,7 +664,7 @@
 		<!-- End Departments -->	
 		
 		<!-- Pricing Table -->
-		<section class="pricing-table section">
+		{% comment %} <section class="pricing-table section">
 			<div class="container">
 				<div class="row">
 					<div class="col-lg-12">
@@ -760,7 +762,7 @@
 					<!-- End Single Table-->
 				</div>	
 			</div>	
-		</section>	
+		</section>	 {% endcomment %}
 		<!--/ End Pricing Table -->
 		
 		<!-- Start Team -->
@@ -927,31 +929,31 @@
 					<div class="col-lg-12 col-md-12 col-12">
 						<div class="owl-carousel clients-slider">
 							<div class="single-clients">
-								<img src="img/client1.png" alt="#">
+								<img src="{% static 'main_static/img/client1.png' %}" alt="#">
 							</div>
 							<div class="single-clients">
-								<img src="img/client2.png" alt="#">
+								<img src="{% static 'main_static/img/client2.png' %}" alt="#">
 							</div>
 							<div class="single-clients">
-								<img src="img/client3.png" alt="#">
+								<img src="{% static 'main_static/img/client3.png' %}" alt="#">
 							</div>
 							<div class="single-clients">
-								<img src="img/client4.png" alt="#">
+								<img src="{% static 'main_static/img/client4.png' %}" alt="#">
 							</div>
 							<div class="single-clients">
-								<img src="img/client5.png" alt="#">
+								<img src="{% static 'main_static/img/client5.png' %}" alt="#">
 							</div>
 							<div class="single-clients">
-								<img src="img/client1.png" alt="#">
+								<img src="{% static 'main_static/img/client1.png' %}" alt="#">
 							</div>
 							<div class="single-clients">
-								<img src="img/client2.png" alt="#">
+								<img src="{% static 'main_static/img/client2.png' %}" alt="#">
 							</div>
 							<div class="single-clients">
-								<img src="img/client3.png" alt="#">
+								<img src="{% static 'main_static/img/client3.png' %}" alt="#">
 							</div>
 							<div class="single-clients">
-								<img src="img/client4.png" alt="#">
+								<img src="{% static 'main_static/img/client4.png' %}" alt="#">
 							</div>
 						</div>
 					</div>
