@@ -2,7 +2,6 @@
 <!doctype html>
 <html class="no-js" lang="zxx">
     
-<!-- Mirrored from wpthemesgrid.com/themes/medikit/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 24 May 2025 16:48:34 GMT -->
 <head>
         <!-- Meta Tags -->
 		<meta charset="utf-8">
@@ -13,12 +12,12 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		
 		<!-- Title -->
-        <title>Medikit - Medical and Doctor HTML Template.</title>
+        <title>ZapSlot - Book Appointment</title>
 		
 		<!-- Favicon -->
         <link rel="icon" href="img/favicon.png">
 		
-		<link rel="stylesheet" href="../../../stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+		{% comment %} <link rel="stylesheet" href="stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> {% endcomment %}
 		
 		<!-- Google Fonts -->
 		<link href="https://fonts.googleapis.com/css?family=Poppins:200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i&amp;display=swap" rel="stylesheet">
@@ -49,17 +48,19 @@
 		
 		<!-- Color CSS -->
 		<link rel="stylesheet" href="{% static 'main_static/css/color/color1.css' %}">
-		<!--<link rel="stylesheet" href="css/color/color2.css">-->
-		<!--<link rel="stylesheet" href="css/color/color3.css">-->
-		<!--<link rel="stylesheet" href="css/color/color4.css">-->
-		<!--<link rel="stylesheet" href="css/color/color5.css">-->
-		<!--<link rel="stylesheet" href="css/color/color6.css">-->
-		<!--<link rel="stylesheet" href="css/color/color7.css">-->
-		<!--<link rel="stylesheet" href="css/color/color8.css">-->
-		<!--<link rel="stylesheet" href="css/color/color9.css">-->
-		<!--<link rel="stylesheet" href="css/color/color10.css">-->
-		<!--<link rel="stylesheet" href="css/color/color11.css">-->
-		<!--<link rel="stylesheet" href="css/color/color12.css">-->
+        
+        {% comment %} <link rel="stylesheet" href="{% static 'main_static/css/color/color2.css' %}">
+        <link rel="stylesheet" href="{% static 'main_static/css/color/color3.css' %}">
+        <link rel="stylesheet" href="{% static 'main_static/css/color/color4.css' %}">
+        <link rel="stylesheet" href="{% static 'main_static/css/color/color5.css' %}">
+        <link rel="stylesheet" href="{% static 'main_static/css/color/color6.css' %}">
+        <link rel="stylesheet" href="{% static 'main_static/css/color/color7.css' %}">
+        <link rel="stylesheet" href="{% static 'main_static/css/color/color8.css' %}">
+        <link rel="stylesheet" href="{% static 'main_static/css/color/color9.css' %}">
+        <link rel="stylesheet" href="{% static 'main_static/css/color/color10.cs' %}s">
+        <link rel="stylesheet" href="{% static 'main_static/css/color/color11.cs' %}s">
+        <link rel="stylesheet" href="{% static 'main_static/css/color/color12.cs' %}s"> {% endcomment %}
+
 
 		<link rel="stylesheet" href="#" id="colors">
 		{% block extra_css %}{% endblock  %}
@@ -112,6 +113,7 @@
 		<!-- jquery Min JS -->
         {% comment %} <script data-cfasync="false" src="../../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="js/jquery.min.js"></script> {% endcomment %}
 		<!-- jquery Migrate JS -->
+		<script src="{% static 'main_static/js/jquery.min.js' %}"></script>
 		<script src="{% static 'main_static/js/jquery-migrate-3.0.0.js' %}"></script>
 		<!-- jquery Ui JS -->
 		<script src="{% static 'main_static/js/jquery-ui.min.js' %}"></script>
@@ -152,5 +154,4 @@
         {% block extra_js %}{% endblock  %}
     </body>
 
-<!-- Mirrored from wpthemesgrid.com/themes/medikit/ by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 24 May 2025 16:49:17 GMT -->
 </html>
