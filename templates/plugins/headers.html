@@ -53,12 +53,12 @@
 													<li><a href="index2.html">Home Page 2</a></li>
 												</ul>
 											</li>
-											<li><a href="#">Doctos <i class="icofont-rounded-down"></i></a>
+											{% comment %} <li><a href="#">Doctos <i class="icofont-rounded-down"></i></a>
 												<ul class="dropdown">
 													<li><a href="doctors.html">Doctor</a></li>
 													<li><a href="doctor-details.html">Doctor Details</a></li>
 												</ul>
-											</li>
+											</li> {% endcomment %}
 											<li><a href="#">Services <i class="icofont-rounded-down"></i></a>
 												<ul class="dropdown">
 													<li><a href="service.html">Service</a></li>
@@ -79,13 +79,23 @@
 													<li><a href="404.html">404 Error</a></li>
 												</ul>
 											</li>
-											<li><a href="#">Blogs <i class="icofont-rounded-down"></i></a>
+											{% comment %} <li><a href="#">Blogs <i class="icofont-rounded-down"></i></a>
 												<ul class="dropdown">
-													<li><a href="blog-grid.html">Blog Grid</a></li>
+                                                    <li><a href="blog-grid.html">Blog Grid</a></li>
 													<li><a href="blog-single.html">Blog Details</a></li>
 												</ul>
-											</li>
+											</li> {% endcomment %}
 											<li><a href="contact.html">Contact Us</a></li>
+                                            {% if request.user.is_authenticated %}
+                                            <li><a href="#">Account <i class="icofont-rounded-down"></i></a>
+                                                <ul class="dropdown">
+                                                    <li><a href="blog-grid.html">Profile</a></li>
+                                                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                                                </ul>
+                                            </li>
+                                            {% else %}
+											<li><a href="contact.html">Login</a></li>
+                                            {% endif %}
 										</ul>
 									</nav>
 								</div>
