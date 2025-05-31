@@ -19,7 +19,10 @@ def book_appoinment(request):
     else:
         form = AppointmentForm()
     
-    return render(request, 'main/partials/appoinment_form.html', {'form': form})
+    return render(request, 'appointment.html', {'form': form})
+
+
+
 
 
 
