@@ -238,7 +238,7 @@ def about_us(request):
     return render(request, 'main/about.html')
 
 def contact_us(request):
-    return render(request, 'main/contact.html')
+    return render(request, 'contact.html')
 
 def doctor_list(request):
     return render(request, 'main/doctor.html')

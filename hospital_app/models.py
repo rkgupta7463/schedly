@@ -111,6 +111,36 @@ class HospitalImage(models.Model):
         return f"Image {self.sequence} of {self.hospital.name}"
     
 
+class HospitalServices(models.Model):
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name="services_offered")
+    service_name = models.CharField(max_length=100, help_text="Name of the service offered by the hospital")
+    service_description = models.TextField(help_text="Description of the service offered by the hospital")
+    service_price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Price of the service offered by the hospital", null=True,blank=True)
+    timslot=models.ManyToManyField('TimeSlot', blank=True, help_text="Time slots available for the service")
+    is_active = models.BooleanField(default=True, help_text="Whether the service is currently active")
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='services_created'
+    )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='services_updated'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    class Meta:
+        ordering = ['service_name']
+
+    def __str__(self):
+        return self.service_name
+
+
 
 class HospitalReview(models.Model):
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='reviews')
@@ -137,11 +167,12 @@ APPOINTMENT_STATUS_CHOICES = [
 
 
 class Appointment(models.Model):
-    name=models.CharField(max_length=100,blank=True,null=True)
-    email=models.EmailField(blank=True,null=True)
-    phone=models.CharField(max_length=15,blank=True,null=True)
+    name=models.CharField(max_length=100)
+    email=models.EmailField()
+    phone=models.CharField(max_length=15)
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name="appointments_hospital")
-    services=models.ForeignKey('HospitalServices', on_delete=models.CASCADE, related_name="appointments_services")
+    services=models.ForeignKey(HospitalServices, on_delete=models.CASCADE, related_name="appointments_services")
+    doctor=models.ForeignKey('core.CustomUser', on_delete=models.CASCADE, related_name="appointment_for_doctors",null=True,blank=True)
     timeslot=models.ForeignKey('TimeSlot', on_delete=models.CASCADE, related_name="appointments_timeslot")
     appointment_date = models.DateField(help_text="Date of the appointment")
     symptoms = models.TextField(blank=True, null=True, help_text="Short description of patient symptoms or concerns.")
@@ -198,61 +229,31 @@ class Appointment(models.Model):
         super().save(*args, **kwargs)
 
 
-class DoctorHospitalAssociation(models.Model):
-    doctor = models.ForeignKey('core.CustomUser', on_delete=models.CASCADE,related_name="doctor_association_with")
-    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE,related_name="hospital_association_with")
+# class DoctorHospitalAssociation(models.Model):
+#     doctor = models.ForeignKey('core.CustomUser', on_delete=models.CASCADE,related_name="doctor_association_with")
+#     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE,related_name="hospital_association_with")
     
-    # Additional fields to store the relationship between doctor and hospital
-    date_joined = models.DateField(help_text="Date the doctor joined the hospital")
+#     # Additional fields to store the relationship between doctor and hospital
+#     date_joined = models.DateField(help_text="Date the doctor joined the hospital")
 
-    role = models.CharField(max_length=100, choices=[
-        ('Consultant', 'Consultant'),
-        ('Specialist', 'Specialist'),
-        ('Resident', 'Resident'),
-        ('Visiting', 'Visiting'),
-    ], help_text="Doctor's role in the hospital")
+#     role = models.CharField(max_length=100, choices=[
+#         ('Consultant', 'Consultant'),
+#         ('Specialist', 'Specialist'),
+#         ('Resident', 'Resident'),
+#         ('Visiting', 'Visiting'),
+#     ], help_text="Doctor's role in the hospital")
     
-    is_active = models.BooleanField(default=True, help_text="Whether the doctor is currently active in the hospital")
+#     is_active = models.BooleanField(default=True, help_text="Whether the doctor is currently active in the hospital")
     
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
 
-    class Meta:
-        unique_together = ('doctor', 'hospital')  # Ensures a doctor can't belong to the same hospital twice
+#     class Meta:
+#         unique_together = ('doctor', 'hospital')  # Ensures a doctor can't belong to the same hospital twice
 
-    def __str__(self):
-        return f"{self.doctor} - {self.hospital} ({self.role})"
+#     def __str__(self):
+#         return f"{self.doctor} - {self.hospital} ({self.role})"
     
-
-class HospitalServices(models.Model):
-    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name="services_offered")
-    service_name = models.CharField(max_length=100, help_text="Name of the service offered by the hospital")
-    service_description = models.TextField(help_text="Description of the service offered by the hospital")
-    service_price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Price of the service offered by the hospital", null=True,blank=True)
-    timslot=models.ManyToManyField('TimeSlot', blank=True, help_text="Time slots available for the service")
-    is_active = models.BooleanField(default=True, help_text="Whether the service is currently active")
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='services_created'
-    )
-    updated_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='services_updated'
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    class Meta:
-        ordering = ['service_name']
-
-    def __str__(self):
-        return self.service_name
-
 
 
 class TimeSlot(models.Model):

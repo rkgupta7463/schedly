@@ -11,7 +11,7 @@ urlpatterns = [
 
     path('',index,name="home"),
     path('about-us/',about_us,name="about_us"),
-    path('contact-us/',contact_us,name="contact_us"),
+    path('contact/',contact_us,name="contact_us"),
     path('services/',services,name="services"),
     path('doctor/',doctor_list,name="doctor"),
     path('department/',department_list,name="departments"),

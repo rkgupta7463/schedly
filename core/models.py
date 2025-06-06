@@ -185,6 +185,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         null=True,
         help_text="Select the days you are available."
     )
+
+    hospitals=models.ForeignKey("hospital_app.Hospital",on_delete=models.CASCADE,null=True,blank=True)
+    hospital_services=models.ForeignKey("hospital_app.HospitalServices",on_delete=models.CASCADE,null=True,blank=True)
+
     clinic_location = models.CharField(max_length=255, blank=True, null=True,help_text="If you have your own clinic, please enter the location here.")
 
     # Patient-specific

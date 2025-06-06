@@ -39,6 +39,8 @@ class SetNewPasswordForm(SetPasswordForm):
         return self.cleaned_data
     
 
+from hospital_app.models import *
+
 class CustomUserRegistrationForm(CustomModelForm):
     class Meta:
         model = CustomUser
@@ -58,6 +60,18 @@ class CustomUserRegistrationForm(CustomModelForm):
         ]
 
         widgets = {
+            'hospital': PreOptionModelSelect2Widget(
+                model=Hospital,
+                label="Select Hospital",
+                queryset=Hospital.objects.all(),
+                search_fields=['name__icontains'],
+                attrs={'data-placeholder': 'Select a hospital'}
+            ),
+            'services': PreOptionModelSelect2Widget(
+                dependent_fields={'hospital': 'hospital'},
+                search_fields=['service_name__icontains'],
+                attrs={'data-placeholder': 'Select a service','class':"form-control"}
+            ),
             'specialization':PreOptionModelSelect2MultipleWidget(
                 search_fields=['name__icontains'],
                 attrs={'data-placeholder':'Select Specialization(s)'}

@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core','dashboard','hospital_app','ckeditor','widget_tweaks','django_select2','ajax_datatable',
+    'ckeditor','widget_tweaks','django_select2','ajax_datatable',
+    'core','dashboard','hospital_app'
 ]
 
 MIDDLEWARE = [

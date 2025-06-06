@@ -25,7 +25,7 @@ class AppointmentForm(CustomModelForm):
         model = Appointment
         fields = [
             'name', 'email', 'phone',
-            'hospital', 'services', 'timeslot',
+            'hospital', 'services','doctor', 'timeslot',
             'appointment_date', 'symptoms',
         ]
         widgets = {
@@ -33,6 +33,7 @@ class AppointmentForm(CustomModelForm):
             'type': 'date',
             'placeholder': 'Select a date for appointment'
             }),
+            'symptoms': forms.Textarea(attrs={'placeholder': 'Briefly describe your symptoms', 'rows': 2}),
             'hospital': PreOptionModelSelect2Widget(
                 model=Hospital,
                 label="Select Hospital",
@@ -45,6 +46,11 @@ class AppointmentForm(CustomModelForm):
                 search_fields=['service_name__icontains'],
                 attrs={'data-placeholder': 'Select a service','class':"form-control"}
             ),
+            'doctor': PreOptionModelSelect2Widget(
+                dependent_fields={'services': 'hospital_services'},
+                search_fields=['username__icontains'],
+                attrs={'data-placeholder': 'Select Doctor', 'class': "form-control"}
+            ),
             'timeslot': PreOptionModelSelect2Widget(
                 dependent_fields={'services': 'hospitalservices'},
                 search_fields=['start_time__icontains'],
@@ -53,7 +59,7 @@ class AppointmentForm(CustomModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(AppointmentForm,self).__init__(*args, **kwargs)
         self.custom_field_class()
 
         # Add placeholder text for input fields
@@ -61,7 +67,8 @@ class AppointmentForm(CustomModelForm):
         self.fields['email'].widget.attrs['placeholder'] = 'Enter your email address'
         self.fields['phone'].widget.attrs['placeholder'] = 'Enter your phone number'
         self.fields['appointment_date'].widget.attrs['placeholder'] = 'Select a date for appointment'
-        self.fields['symptoms'].widget.attrs['placeholder'] = 'Briefly describe your symptoms'
+        # self.fields['symptoms'].widget.attrs['placeholder'] = 'Briefly describe your symptoms'
+        # self.fields['symptoms'].widget.attrs['row'] = '2'
 
         # For Select2 widgets, placeholders are already defined in Meta.widgets
         # But if you still want to ensure they're set, you can do:

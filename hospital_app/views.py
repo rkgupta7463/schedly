@@ -5,6 +5,11 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from core.tasks import appointment_confirmation,secure_account_set_password
 
+
+def appoinment_view(request):
+    return render(request,'appointment.html')
+
+
 def book_appoinment(request):
     if request.method == "POST":
         form = AppointmentForm(request.POST)
@@ -19,7 +24,7 @@ def book_appoinment(request):
     else:
         form = AppointmentForm()
     
-    return render(request, 'appointment.html', {'form': form})
+    return render(request, 'partials/appointment_form.html', {'form': form})
 
 
 
