@@ -174,3 +174,20 @@ class ForgotPasswordForm(CustomForm):
         super(ForgotPasswordForm,self).__init__(*args,**kwargs)
         return self.custom_field_class()
 
+
+class EnquiryForm(CustomModelForm):
+    class Meta:
+        model = Enquiry
+        fields = ['name', 'email', 'phone', 'subject', 'message', 'subscribe_newsletter']
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder': 'Name', 'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'placeholder': 'Email', 'class': 'form-control'}),
+            'phone': forms.TextInput(attrs={'placeholder': 'Phone', 'class': 'form-control'}),
+            'subject': forms.TextInput(attrs={'placeholder': 'Subject', 'class': 'form-control'}),
+            'message': forms.Textarea(attrs={'placeholder': 'Your Message', 'class': 'form-control', 'rows': 4}),
+            'subscribe_newsletter': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+    def __inti__(self,*args,**kwargs):
+        super(EnquiryForm,self).__init__(*args,**kwargs)
+        self.custom_field_class()

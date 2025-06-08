@@ -45,6 +45,10 @@ urlpatterns = [
     path('hospital/<int:hid>/services/<int:sid>>/edit/', hospital_services, name="edit_hospital_services"),
     path('hospital/<int:hid>/services/list/', hospital_services_list, name="hospital_services_list"),
 
+    ########## enuiried's url
+    path('enquiry/', enquiries, name="enquiries"),
+    path('enquiries/filtered/',  enquiries_filtered, name="enquiries_filtered"),
+    path('ajax_datatable/enquiries/filter/', EnquiriesDatatableView.as_view(), name="ajax_datatable_enquiries_filter_list"),
 
     ########## services's url
     path('appoinments/', hospital_appoinment, name="appoinment"),

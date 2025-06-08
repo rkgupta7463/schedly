@@ -139,6 +139,42 @@ def appointment_confirmation(appoinment_id,to_mail=None,cc_mails=None):
 
     print("email has sent!")
 
+@shared_task
+def user_enquiry_tasks(enqiuey_id,to_mail=None,cc_mails=None):
+    t = get_object_or_404(EmailTemplate, slug="user-enquiry-received")
+    
+    enquiry = get_object_or_404(Enquiry, id=enqiuey_id)
+    
+    subject = Template(t.subject).render(Context({}))
+    plain_text = Template(t.plain_text).render(Context({}))
+    header = Template(t.html_header).render(Context({}))
+    footer = Template(t.html_footer).render(Context({}))
+    html = Template(t.html).render(Context({"enquiry":enquiry}))
+    
+    html = header + html + footer
+
+    send_email(subject,to_mail,html,plain_text,cc_mails)
+
+    print("email has sent!")
+
+@shared_task
+def admin_enquiry_tasks(enqiuey_id,to_mail="rishukumargupta8409@gmail.com",cc_mails=None):
+    t = get_object_or_404(EmailTemplate, slug="admin-enquiry-received")
+    
+    enquiry = get_object_or_404(Enquiry, id=enqiuey_id)
+    
+    subject = Template(t.subject).render(Context({}))
+    plain_text = Template(t.plain_text).render(Context({}))
+    header = Template(t.html_header).render(Context({}))
+    footer = Template(t.html_footer).render(Context({}))
+    html = Template(t.html).render(Context({"enquiry":enquiry}))
+    
+    html = header + html + footer
+
+    send_email(subject,to_mail,html,plain_text,cc_mails)
+
+    print("email has sent!")
+
 
 
 

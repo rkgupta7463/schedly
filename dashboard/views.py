@@ -966,3 +966,100 @@ def view_appoinmemt(request,ap_id):
     return render(request,'dashboard/partials/appoinment_view.html',context={'appoinment': appoinment, "title": f"View Appoinment!"})
 
 
+
+
+
+
+@login_required(login_url="login_admin")
+def enquiries(request):  
+    query_string = request.GET.urlencode()
+    context = {
+        "title": "Enquires",
+        # "description": "List of Users",
+        "url": f"{reverse('enquiries_filtered')}{'?' + query_string if  query_string else ''}",
+        "bread_crumbs":  [
+                        {"name": "Home", "url": reverse("index")}, {"name": "Hospital"}, 
+                    ]
+        }
+    return render(request, 'dashboard/filter-datatable-init.html', context)
+
+
+def enquiries_filtered(request):
+    query_string = request.GET.urlencode()
+    
+    filled_fields = 0
+    for key, value in request.GET.items():
+        if value:
+            filled_fields += 1
+            
+    context = {
+        "title": "Hospitals",
+        "description": "List of Hospitals",
+        # "filterForm": {"title": "Filter Users", "form": filter.form, "select2": True},
+        
+        "url": f"{reverse('ajax_datatable_enquiries_filter_list',)}?{query_string}",
+        "params": query_string,
+        "filled_fields": filled_fields,
+        # "hx_add_button": [
+        #         {"url": reverse('add_hospital'),"icon": "","text": "Add Hospital", "bs_toggle": "modal"},
+        #         ],
+        # "export_button": {"url": reverse('users_export'), "icon": '<i class="ti ti-table-export"></i>'},
+        # "export_history": {"url": reverse('users_export_history'), "icon": '<i class="ti ti-clock"></i>'},
+    }
+    response = render(request, 'dashboard/partials/filter-datatable.html', context=context)
+    if query_string:
+        response['HX-Trigger'] = json.dumps({"closeModal": True})
+    return response
+
+
+class EnquiriesDatatableView(AjaxDatatableView):
+    model = Enquiry
+    title = "Appointments"
+    initial_order = [["name", "dsc"], ]
+    length_menu = [[10, 20, 30, 50], [10, 20, 30, 50]]
+    search_values_separator = '+'
+    column_defs = [
+            {'name': 'SN', 'visible': True, 'placeholder': True, 'orderable': False, 'searchable': False, 'className': "sn-no" },
+            {'name': 'name', 'title': 'Name', 'visible': True, 'orderable': True, 'searchable': True},
+            {'name': 'email', 'title': 'Email', 'visible': True, 'orderable': True, 'searchable': True},
+            {'name': 'phone', 'title': 'Contact Number', 'visible': True, 'orderable': True, 'searchable': True},
+            {'name': 'subject', 'title': 'Subject', 'visible': True, 'orderable': True, 'searchable': True},
+            {'name': 'action', "title": "Action",  'visible': True,  'orderable': False,  'searchable': False, 'width': '2rem'},
+    ]
+
+
+    def customize_row(self, row, obj):
+            # Show the first price (or "N/A" if no prices exist)
+        row['action'] = '''
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary btn-icon rounded-pill dropdown-toggle hide-arrow waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="ti ti-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" style="">
+                                <a class="dropdown-item waves-effect" hx-get="%s" hx-target="#modal-content" data-bs-toggle="modal" data-bs-target="#modal">%s</a>
+                                <a class="dropdown-item waves-effect" hx-get="%s" hx-target="#modal-content" data-bs-toggle="modal" data-bs-target="#modal">%s</a>
+                               </ul>
+                        </div>
+                        ''' %(
+                            reverse('comfirm_appoinment', args=(obj.id,)), "Reply",
+                            reverse('view_appoinment', args=(obj.id,)), "View",
+                            )
+
+    def get_show_column_filters(self, request):
+        return True
+
+    def get_column_defs(self, request):
+        if request.user.is_superuser:
+            return self.column_defs
+        else:
+            column_defs = [entry for entry in self.column_defs if entry['name'] not in "hospital"]
+            return column_defs 
+    
+    def get_initial_queryset(self, request=None):
+        if request.user.is_superuser:
+            queryset = Enquiry.objects.all()
+        return queryset
+
+
+
+

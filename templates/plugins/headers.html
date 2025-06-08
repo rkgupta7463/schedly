@@ -8,10 +8,10 @@
 						<div class="col-lg-6 col-md-5 col-12">
 							<!-- Contact -->
 							<ul class="top-link">
-								<li><a href="#">About</a></li>
-								<li><a href="#">Doctors</a></li>
+								<li><a href="{% url 'about' %}">About</a></li>
+								<li><a href="{% url 'doctors_list' %}">Doctors</a></li>
 								<li><a href="{% url 'contact_us' %}">Contact</a></li>
-								<li><a href="#">FAQ</a></li>
+								<li><a href="{% url 'faq' %}">FAQ</a></li>
 							</ul>
 							<!-- End Contact -->
 						</div>
@@ -58,25 +58,26 @@
 												{% comment %} <ul class="dropdown">
 													<li><a href="index-2.html">Home Page 1</a></li>
 													<li><a href="index2.html">Home Page 2</a></li>
-												</ul> {% endcomment %}
-											</li>
-											{% comment %} <li><a href="#">Doctos <i class="icofont-rounded-down"></i></a>
+													</ul> {% endcomment %}
+												</li>
+												{% comment %} <li><a href="#">Doctos <i class="icofont-rounded-down"></i></a>
 												<ul class="dropdown">
 													<li><a href="doctors.html">Doctor</a></li>
 													<li><a href="doctor-details.html">Doctor Details</a></li>
+													</ul>
+													</li> {% endcomment %}
+													<li><a href="{% url 'services' %}">Services <i class="icofont-rounded"></i></a></li>
+													<!--li><a href="{% url 'services' %}">Services <i class="icofont-rounded"></i></a>
+													<ul class="dropdown">
+														<li><a href="{% url 'services' %}">Service</a></li>
+														{% comment %} <li><a href="service-details.html">Service Details</a></li> {% endcomment %}
 												</ul>
-											</li> {% endcomment %}
-											<li><a href="#">Services <i class="icofont-rounded-down"></i></a>
-												<ul class="dropdown">
-													<li><a href="service.html">Service</a></li>
-													{% comment %} <li><a href="service-details.html">Service Details</a></li> {% endcomment %}
-												</ul>
-											</li>
+											</li-->
 											<li><a href="#">Pages <i class="icofont-rounded-down"></i></a>
 												<ul class="dropdown">
-													<li><a href="about.html">About Us</a></li>
+													<li><a href="{% url 'about' %}">About Us</a></li>
 													{% comment %} <li><a href="appointment.html">Appointment</a></li> {% endcomment %}
-													<li><a href="time-table.html">Time Table</a></li>
+													<li><a href="{% url 'time_table' %}">Time Table</a></li>
 													{% comment %} <li><a href="testimonials.html">Testimonials</a></li>
 													<li><a href="pricing.html">Our Pricing</a></li>
 													<li><a href="register.html">Sign Up</a></li>

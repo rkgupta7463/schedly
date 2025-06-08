@@ -237,8 +237,24 @@ def index(request):
 def about_us(request):
     return render(request, 'main/about.html')
 
+
 def contact_us(request):
-    return render(request, 'contact.html')
+    if request.method == "POST":
+        form = EnquiryForm(request.POST)
+        if form.is_valid():
+            f = form.save(commit=False)
+            f.save()
+            user_enquiry_tasks.delay(enqiuey_id=f.id,to_mail=f.email)
+            admin_enquiry_tasks.delay(enqiuey_id=f.id)
+            return HttpResponse("""<div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Message Sent!</strong> Thank you for reaching out. We have received your enquiry and will get back to you shortly.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>""")
+    else:
+        form = EnquiryForm()
+
+    return render(request, 'contact.html', {'form': form})
+
 
 def doctor_list(request):
     return render(request, 'main/doctor.html')
@@ -247,4 +263,16 @@ def department_list(request):
     return render(request, 'main/dep.html')
 
 def services(request):
-    return render(request, 'main/services.html')
+    return render(request, 'service.html')
+
+def time_table(request):
+    return render(request, 'time-table.html')
+
+def doctors_list(request):
+    return render(request, 'doctors.html')
+
+def aboutus(request):
+    return render(request, 'about.html')
+
+def faq(request):
+    return render(request, 'faq.html')

@@ -39,43 +39,56 @@
 								<h2>Contact With Us</h2>
 								<p>If you have any questions please fell free to contact with us.</p>
 								<!-- Form -->
-								<form class="form" method="post" action="https://wpthemesgrid.com/themes/medikit/mail/mail.php">
+								<form class="form" hx-post="{% url 'contact_us' %}" hx-trigger="submit" hx-target="#response-message" hx-on::after-request="this.reset()">
+									{% csrf_token %}
 									<div class="row">
 										<div class="col-lg-6">
 											<div class="form-group">
-												<input type="text" name="name" placeholder="Name" required="">
+												{{ form.name }}
 											</div>
 										</div>
 										<div class="col-lg-6">
 											<div class="form-group">
-												<input type="email" name="email" placeholder="Email" required="">
+												{{ form.email }}
 											</div>
 										</div>
 										<div class="col-lg-6">
 											<div class="form-group">
-												<input type="text" name="phone" placeholder="Phone" required="">
+												{{ form.phone }}
 											</div>
 										</div>
 										<div class="col-lg-6">
 											<div class="form-group">
-												<input type="text" name="subject" placeholder="Subject" required="">
+												{{ form.subject }}
 											</div>
 										</div>
 										<div class="col-lg-12">
 											<div class="form-group">
-												<textarea name="message" placeholder="Your Message" required=""></textarea>
+												{{ form.message }}
 											</div>
 										</div>
 										<div class="col-12">
 											<div class="form-group login-btn">
 												<button class="btn" type="submit">Send</button>
 											</div>
-											<div class="checkbox">
-												<label class="checkbox-inline" for="2"><input name="news" id="2" type="checkbox">Do you want to subscribe our Newsletter ?</label>
+											<div class="" style="text-align: left;
+  margin: 0;
+    margin-top: 0px;
+    margin-left: 0px;
+  margin-top: 0px;
+  margin-top: 20px;
+  display: inline-block;
+  border-radius: 4px;
+  margin-left: 25px;">
+												<label class="checkbox-inline" for="id_subscribe_newsletter">
+													{{ form.subscribe_newsletter }} Do you want to subscribe our Newsletter ?
+												</label>
 											</div>
 										</div>
+										<div id="response-message"></div>
 									</div>
 								</form>
+
 								<!--/ End Form -->
 							</div>
 						</div>
